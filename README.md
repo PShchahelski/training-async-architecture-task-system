@@ -1,1 +1,3 @@
-# training-async-architecture-task-system
+# training-async-architecture
+
+Awesome Task Exchange System (UberPopug Inc).
