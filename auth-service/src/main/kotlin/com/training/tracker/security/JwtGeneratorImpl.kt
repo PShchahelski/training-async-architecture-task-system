@@ -1,6 +1,6 @@
-package com.training.auth.security
+package com.training.tracker.security
 
-import com.training.auth.data.model.User
+import com.training.tracker.data.model.User
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.beans.factory.annotation.Value
@@ -16,8 +16,9 @@ class JwtGeneratorImpl : JwtGenerator {
     override fun generateAccessToken(user: User): String {
         return Jwts.builder()
                 .setSubject(user.email)
+                .claim("role", user.role)
                 .setIssuedAt(Date())
-                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact()
     }
 }
