@@ -9,7 +9,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 
 @Service
-class KafkaConsumer {
+class TaskManagerEventConsumer {
 
     @Autowired
     private lateinit var userRepository: UserRepository

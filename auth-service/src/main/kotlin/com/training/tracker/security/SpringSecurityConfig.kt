@@ -22,16 +22,15 @@ class SpringSecurityConfig {
     @Bean
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        http
+        return http
                 .authorizeHttpRequests { authorizeHttpRequests ->
                     authorizeHttpRequests
                             .requestMatchers("/user/**").permitAll()
                             .requestMatchers("/admin/**").hasAuthority("ADMIN")
                 }
                 .csrf { csrf -> csrf.disable() }
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
-
-        return http.build()
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+                .build()
     }
 
     @Bean

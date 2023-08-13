@@ -1,11 +1,9 @@
 services:
   auth-service:
     image: pavelsha/async-course-2023-auth:1.0.0
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     ports:
-      - "8085:8085"
+      - "9080:9080"
     depends_on:
       - service-db
     environment:
@@ -21,5 +19,7 @@ services:
       - "5432:5432"
     restart: always
     volumes:
-      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
-      - ./sql/fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

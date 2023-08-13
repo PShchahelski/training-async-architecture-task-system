@@ -1,4 +1,13 @@
 services:
+  task-service:
+    image: pavelsha/async-course-2023-task:1.0.0
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - service-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db/task-db
 
   service-db:
     image: postgres:15.3

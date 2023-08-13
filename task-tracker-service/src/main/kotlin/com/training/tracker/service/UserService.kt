@@ -14,7 +14,7 @@ class UserService {
 
     fun getRandomUser(): User {
         val users = userRepository.findByRole("DEVELOPER")
-        val index = Random.nextInt(users.size);
+        val index = Random.nextInt(users.size)
         val user = users[index]
         println("Random User for task: $user")
 
