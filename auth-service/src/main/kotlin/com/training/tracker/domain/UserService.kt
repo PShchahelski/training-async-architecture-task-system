@@ -16,5 +16,5 @@ interface UserService {
             role: User.Role,
     ): ResponseEntity<*>
 
-    fun saverUser(user: User): User
+    fun saverUser(user: User)
 }

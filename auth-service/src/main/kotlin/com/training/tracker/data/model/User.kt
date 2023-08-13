@@ -1,5 +1,6 @@
 package com.training.tracker.data.model
 
+import com.training.tracker.events.model.UserCreatedEvent
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -62,4 +63,8 @@ class User(
         DEVELOPER,
         ACCOUNTANT
     }
+}
+
+fun User.toUserCreatedEventDto(): UserCreatedEvent {
+    return UserCreatedEvent(email, name, role.toString(), uuid.toString())
 }

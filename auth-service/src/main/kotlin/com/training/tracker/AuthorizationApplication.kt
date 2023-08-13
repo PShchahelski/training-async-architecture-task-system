@@ -14,8 +14,10 @@ class AuthorizationApplication {
 
     @Bean
     fun run(userService: UserService, userRepository: UserRepository, passwordEncoder: PasswordEncoder): CommandLineRunner {
-        return CommandLineRunner { args: Array<String?>? ->
-            userService.saverUser(User("admin@gmail.com", passwordEncoder.encode("adminPassword"), "Admin Admin", User.Role.ADMIN))
+        return CommandLineRunner { _: Array<String> ->
+            if (userRepository.findByEmail("admin@gmail.com") == null) {
+                userService.saverUser(User("admin@gmail.com", passwordEncoder.encode("adminPassword"), "Admin Admin", User.Role.ADMIN))
+            }
         }
     }
 }

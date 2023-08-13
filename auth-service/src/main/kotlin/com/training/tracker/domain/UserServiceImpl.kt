@@ -2,6 +2,7 @@ package com.training.tracker.domain
 
 import com.training.tracker.data.UserRepository
 import com.training.tracker.data.model.User
+import com.training.tracker.events.UserEventProducer
 import com.training.tracker.security.JwtGenerator
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -29,6 +30,10 @@ class UserServiceImpl : UserService {
     @Autowired
     private lateinit var authenticationManager: AuthenticationManager
 
+    @Autowired
+    private lateinit var userEventProducer: UserEventProducer
+
+
     override fun authenticate(email: String, password: String): String {
         val authentication: Authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken(
@@ -54,15 +59,19 @@ class UserServiceImpl : UserService {
             ResponseEntity<String>("email is already taken !", HttpStatus.SEE_OTHER)
         } else {
             val user = User(email, passwordEncoder.encode(password), userName, role)
-            userRepository.save(user)
+            val dbUser = userRepository.save(user)
 
-            val token = jwtGenerator.generateAccessToken(user)
+            userEventProducer.sendUserCreated(dbUser)
+
+            val token = jwtGenerator.generateAccessToken(dbUser)
 
             ResponseEntity<Any>(token, HttpStatus.OK)
         }
     }
 
-    override fun saverUser(user: User): User {
-        return userRepository.save(user)
+    override fun saverUser(user: User) {
+        val dbUser = userRepository.save(user)
+
+        userEventProducer.sendUserCreated(dbUser)
     }
 }
