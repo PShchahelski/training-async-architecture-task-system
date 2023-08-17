@@ -7,6 +7,6 @@ sealed interface UserStreamingEvent {
             val name: String,
             val role: String,
             val publicId: String,
-            val eventName: String = "User.Created"
+            val eventName: String
     ) : UserStreamingEvent
 }

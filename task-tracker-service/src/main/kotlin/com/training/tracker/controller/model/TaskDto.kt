@@ -22,10 +22,9 @@ fun Task.toReadableDto() = ReadableTaskDto(
         this.title,
         this.description,
         this.status,
-        this.userPublicId,
+        this.assigneePublicId,
 )
 
-fun Task.toWritableDto() = WritableTaskDto(
-        this.title,
-        this.description,
+data class CompleteTaskDto(
+        val taskId: Long,
 )

@@ -1,6 +1,6 @@
 package com.training.tracker.data.model
 
-import com.training.tracker.events.model.UserCreatedEvent
+import com.training.tracker.events.model.UserStreamingEvent
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -17,7 +17,7 @@ class User(
         val name: String,
         @Enumerated(EnumType.STRING)
         val role: Role = Role.DEVELOPER,
-        val uuid: UUID = UUID.randomUUID(),
+        val publicId: UUID = UUID.randomUUID(),
         @Id
         @GeneratedValue
         val id: Long = -1,
@@ -65,6 +65,6 @@ class User(
     }
 }
 
-fun User.toUserCreatedEventDto(): UserCreatedEvent {
-    return UserCreatedEvent(email, name, role.toString(), uuid.toString())
+fun User.toUserCreatedEventDto(): UserStreamingEvent.UserCreatedStreamingEvent {
+    return UserStreamingEvent.UserCreatedStreamingEvent(email, name, role.toString(), publicId.toString())
 }
