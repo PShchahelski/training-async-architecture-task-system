@@ -1,6 +1,7 @@
 package com.training.tracker.events
 
-import com.training.scheme.registry.account.v1.UserStreamingEvent
+import com.training.scheme.registry.streaming.account.v1.UserStreamingEvent
+import com.training.scheme.registry.streaming.account.v1.UserStreamingPayload
 import com.training.tracker.data.UserRepository
 import com.training.tracker.data.model.User
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -19,15 +20,15 @@ class TaskManagerStreamEventConsumer(
         println("User streaming message delivered: $message")
         val event = message.value()
 
-        addUser(event)
+        addUser(event.payload)
     }
 
-    private fun addUser(event: UserStreamingEvent) {
+    private fun addUser(payload: UserStreamingPayload) {
         val user = User(
-            email = event.email,
-            name = event.name,
-            publicId = event.publicId,
-            role = event.role,
+            email = payload.email,
+            name = payload.name,
+            publicId = payload.publicId,
+            role = payload.role,
         )
 
         userRepository.save(user)

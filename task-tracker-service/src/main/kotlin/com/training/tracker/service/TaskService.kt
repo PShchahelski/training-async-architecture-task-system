@@ -27,7 +27,7 @@ class TaskService(
         val (jiraId, title) = extractTicketIdFromTitle(dto.title)
 
         val task = tasksRepository.save(
-            dto.toTaskEntity(
+            toTaskEntity(
                 assigneePublicId = user.publicId,
                 assignCost = taskCostsCalculator.computeAssignCost(),
                 reward = taskCostsCalculator.computeReward(),
@@ -56,7 +56,7 @@ class TaskService(
 
         if (title.contains("[") || title.contains("]")) {
             jiraId = title.substring(1, title.lastIndexOf("]"))
-            extractedTitle = title.substring(title.indexOf("–") + 1, title.length).trim()
+            extractedTitle = title.substring(jiraId.length + 5, title.length).trim()
         }
 
         return jiraId to extractedTitle

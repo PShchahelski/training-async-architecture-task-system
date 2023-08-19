@@ -1,6 +1,8 @@
 package com.training.tracker.data.model
 
-import com.training.scheme.registry.account.v1.UserStreamingEvent
+import com.training.scheme.registry.eventmeta.v1.EventMeta
+import com.training.scheme.registry.streaming.account.v1.UserStreamingEvent
+import com.training.scheme.registry.streaming.account.v1.UserStreamingPayload
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -67,11 +69,18 @@ class User(
 
 fun User.toUserStreamingEventDto(eventName: String): UserStreamingEvent {
     return UserStreamingEvent.newBuilder()
-        .setEmail(email)
-        .setName(name)
-        .setRole(role.toString())
-        .setPublicId(publicId.toString())
-        .setEventName(eventName)
-        .setEventId(UUID.randomUUID().toString())
+        .setPayload(
+            UserStreamingPayload.newBuilder().setEmail(email)
+                .setName(name)
+                .setRole(role.toString())
+                .setPublicId(publicId.toString())
+                .build()
+        )
+        .setEventMeta(
+            EventMeta.newBuilder()
+                .setEventType(eventName)
+                .setEventId(UUID.randomUUID().toString())
+                .build()
+        )
         .build()
 }

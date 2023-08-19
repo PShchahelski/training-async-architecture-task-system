@@ -2,7 +2,7 @@ package com.training.tracker.events
 
 import com.training.tracker.data.model.Task
 import com.training.tracker.data.model.toCompleteTaskBusinessEvent
-import com.training.tracker.data.model.toTaskAddedBusinessEvent
+import com.training.tracker.data.model.toTaskAddedBusinessEventV2
 import org.apache.avro.specific.SpecificRecord
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
@@ -15,7 +15,7 @@ class TaskManagerBusinessEventProducer(
 ) {
 
     fun sendTaskAdded(task: Task) {
-        val event = task.toTaskAddedBusinessEvent()
+        val event = task.toTaskAddedBusinessEventV2()
 
         println("Task added event sent: $event")
         kafkaTemplate.send(TASK_TOPIC_NAME, event)
