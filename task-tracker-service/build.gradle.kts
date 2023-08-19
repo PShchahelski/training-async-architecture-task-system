@@ -17,6 +17,7 @@ java {
 
 repositories {
 	mavenCentral()
+	maven(url = "https://packages.confluent.io/maven/")
 }
 
 dependencies {
@@ -29,6 +30,11 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt:0.9.1")
 
 	implementation("org.springframework.kafka:spring-kafka")
+
+	implementation("org.apache.avro:avro:1.11.1")
+	implementation("io.confluent:kafka-avro-serializer:5.3.0")
+
+	implementation(files("../schema-registry/build/libs/schema-registry-1.0-SNAPSHOT.jar"))
 
 	runtimeOnly("org.postgresql:postgresql")
 	runtimeOnly("javax.xml.bind:jaxb-api:2.3.1")

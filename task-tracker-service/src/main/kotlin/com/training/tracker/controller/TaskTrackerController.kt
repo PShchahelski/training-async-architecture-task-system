@@ -1,10 +1,10 @@
 package com.training.tracker.controller
 
-import com.training.tracker.controller.model.CompleteTaskDto
 import com.training.tracker.controller.model.ReadableTaskDto
 import com.training.tracker.controller.model.WritableTaskDto
 import com.training.tracker.service.TaskService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -19,8 +19,9 @@ class TaskTrackerController {
         return taskService.addNewTask(dto)
     }
 
-    @PutMapping
-    fun completeTask(@RequestBody dto: CompleteTaskDto) {
-        taskService.completeTask(dto.taskId)
+    @PostMapping("/{id}/complete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun completeTask(@PathVariable taskId: Long) {
+        taskService.completeTask(taskId)
     }
 }

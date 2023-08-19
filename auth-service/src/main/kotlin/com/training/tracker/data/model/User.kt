@@ -1,6 +1,6 @@
 package com.training.tracker.data.model
 
-import com.training.tracker.events.model.UserStreamingEvent
+import com.training.scheme.registry.account.v1.UserStreamingEvent
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -10,17 +10,17 @@ import java.util.*
 @Entity
 @Table(name = "users")
 class User(
-        @Column(unique = true)
-        val email: String,
-        private var password: String,
-        @Column(name = "name")
-        val name: String,
-        @Enumerated(EnumType.STRING)
-        val role: Role = Role.DEVELOPER,
-        val publicId: UUID = UUID.randomUUID(),
-        @Id
-        @GeneratedValue
-        val id: Long = -1,
+    @Column(unique = true)
+    val email: String,
+    private var password: String,
+    @Column(name = "name")
+    val name: String,
+    @Enumerated(EnumType.STRING)
+    val role: Role = Role.DEVELOPER,
+    val publicId: UUID = UUID.randomUUID(),
+    @Id
+    @GeneratedValue
+    val id: Long = -1,
 ) : UserDetails {
 
     constructor() : this("", "", "")
@@ -65,6 +65,13 @@ class User(
     }
 }
 
-fun User.toUserCreatedEventDto(): UserStreamingEvent.UserCreatedStreamingEvent {
-    return UserStreamingEvent.UserCreatedStreamingEvent(email, name, role.toString(), publicId.toString())
+fun User.toUserStreamingEventDto(eventName: String): UserStreamingEvent {
+    return UserStreamingEvent.newBuilder()
+        .setEmail(email)
+        .setName(name)
+        .setRole(role.toString())
+        .setPublicId(publicId.toString())
+        .setEventName(eventName)
+        .setEventId(UUID.randomUUID().toString())
+        .build()
 }

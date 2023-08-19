@@ -1,8 +1,8 @@
 package com.training.tracker.events
 
+import com.training.scheme.registry.account.v1.UserStreamingEvent
 import com.training.tracker.data.UserRepository
 import com.training.tracker.data.model.User
-import com.training.tracker.events.model.UserStreamingEvent
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
@@ -11,24 +11,23 @@ private const val TASK_USER_STREAMING_TOPIC_NAME = "user-streaming"
 
 @Component
 class TaskManagerStreamEventConsumer(
-        private val userRepository: UserRepository,
+    private val userRepository: UserRepository,
 ) {
 
     @KafkaListener(topics = [TASK_USER_STREAMING_TOPIC_NAME], groupId = "group_id")
     fun userStreamingEvent(message: ConsumerRecord<String, UserStreamingEvent>) {
-        println("User streaming message Delivered: $message")
+        println("User streaming message delivered: $message")
+        val event = message.value()
 
-        when (val event = message.value()) {
-            is UserStreamingEvent.UserCreatedStreamingEvent -> addUser(event)
-        }
+        addUser(event)
     }
 
-    private fun addUser(event: UserStreamingEvent.UserCreatedStreamingEvent) {
+    private fun addUser(event: UserStreamingEvent) {
         val user = User(
-                email = event.email,
-                name = event.name,
-                publicId = event.publicId,
-                role = event.role,
+            email = event.email,
+            name = event.name,
+            publicId = event.publicId,
+            role = event.role,
         )
 
         userRepository.save(user)
