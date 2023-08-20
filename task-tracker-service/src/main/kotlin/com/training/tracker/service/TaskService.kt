@@ -6,8 +6,8 @@ import com.training.tracker.controller.model.toReadableDto
 import com.training.tracker.data.TasksRepository
 import com.training.tracker.data.model.toCompleteTask
 import com.training.tracker.data.model.toTaskEntity
-import com.training.tracker.events.TaskManagerBusinessEventProducer
-import com.training.tracker.events.TaskManagerStreamEventProducer
+import com.training.tracker.events.TaskBusinessEventProducer
+import com.training.tracker.events.TaskStreamingEventProducer
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service
 class TaskService(
     private val tasksRepository: TasksRepository,
     private val userService: UserService,
-    private val taskManagerBusinessEventProducer: TaskManagerBusinessEventProducer,
-    private val taskManagerStreamEventProducer: TaskManagerStreamEventProducer,
+    private val taskBusinessEventProducer: TaskBusinessEventProducer,
+    private val taskStreamingEventProducer: TaskStreamingEventProducer,
     private val taskCostsCalculator: TaskCostsCalculator,
 ) {
 
@@ -36,8 +36,8 @@ class TaskService(
             )
         )
 
-        taskManagerBusinessEventProducer.sendTaskAdded(task)
-        taskManagerStreamEventProducer.sendTaskCreated(task)
+        taskBusinessEventProducer.sendTaskAdded(task)
+        taskStreamingEventProducer.sendTaskCreated(task)
 
         return task.toReadableDto()
     }
@@ -47,7 +47,7 @@ class TaskService(
         val completedTask = task.toCompleteTask()
 
         tasksRepository.save(completedTask)
-        taskManagerBusinessEventProducer.sendTaskCompleted(completedTask)
+        taskBusinessEventProducer.sendTaskCompleted(completedTask)
     }
 
     private fun extractTicketIdFromTitle(title: String): Pair<String?, String> {

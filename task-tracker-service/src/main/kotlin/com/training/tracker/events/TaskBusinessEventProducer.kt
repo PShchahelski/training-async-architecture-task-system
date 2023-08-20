@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 private const val TASK_TOPIC_NAME = "task-lifecycle"
 
 @Component
-class TaskManagerBusinessEventProducer(
+class TaskBusinessEventProducer(
     private val kafkaTemplate: KafkaTemplate<String, SpecificRecord>
 ) {
 

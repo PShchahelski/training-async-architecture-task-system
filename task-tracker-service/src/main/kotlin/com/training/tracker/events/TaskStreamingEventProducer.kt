@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 private const val TASK_TOPIC_STREAMING_NAME = "task-streaming"
 
 @Component
-class TaskManagerStreamEventProducer(
+class TaskStreamingEventProducer(
     private val kafkaTemplate: KafkaTemplate<String, SpecificRecord>
 ) {
     fun sendTaskCreated(task: Task) {

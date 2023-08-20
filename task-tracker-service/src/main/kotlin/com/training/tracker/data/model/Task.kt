@@ -7,10 +7,7 @@ import com.training.scheme.registry.business.task.v1.TaskCompletedPayload
 import com.training.scheme.registry.eventmeta.v1.EventMeta
 import com.training.scheme.registry.streaming.task.v1.TaskStreamingEvent
 import com.training.scheme.registry.streaming.task.v1.TaskStreamingPayload
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
+import jakarta.persistence.*
 import java.util.*
 import com.training.scheme.registry.business.task.v2.TaskAddedBusinessEvent as TaskAddedBusinessEventV2
 import com.training.scheme.registry.business.task.v2.TaskAddedPayload as TaskAddedPayloadV2
@@ -18,6 +15,7 @@ import com.training.scheme.registry.streaming.task.v2.TaskStreamingEvent as Task
 import com.training.scheme.registry.streaming.task.v2.TaskStreamingPayload as TaskStreamingPayloadV2
 
 @Entity
+@Table(name = "tasks")
 class Task(
     val title: String,
     val jiraId: String? = null,

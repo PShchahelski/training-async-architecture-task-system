@@ -1,0 +1,52 @@
+{
+  "namespace": "com.training.scheme.registry.business.transaction.v1",
+  "type": "record",
+  "name": "TransactionCompletedBusinessEvent",
+  "fields": [
+    {
+      "name": "eventTypeVersion",
+      "type": "int",
+      "default": 1
+    },
+    {
+      "name": "eventMeta",
+      "type": "com.training.scheme.registry.eventmeta.v1.EventMeta"
+    },
+    {
+      "name": "payload",
+      "type": {
+        "name": "TransactionCompletedPayload",
+        "type": "record",
+        "fields": [
+          {
+            "name": "publicId",
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "name": "debit",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "credit",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "userPublicId",
+            "type": "string"
+          },
+          {
+            "name": "createdAt",
+            "type": "long",
+            "logicalType": "timestamp-millis"
+          }
+        ]
+      }
+    }
+  ]
+}

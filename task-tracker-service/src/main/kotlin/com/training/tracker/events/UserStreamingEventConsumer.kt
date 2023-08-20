@@ -8,14 +8,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 
-private const val TASK_USER_STREAMING_TOPIC_NAME = "user-streaming"
+private const val USER_STREAMING_TOPIC_NAME = "user-streaming"
 
 @Component
-class TaskManagerStreamEventConsumer(
+class UserStreamingEventConsumer(
     private val userRepository: UserRepository,
 ) {
 
-    @KafkaListener(topics = [TASK_USER_STREAMING_TOPIC_NAME], groupId = "group_id")
+    @KafkaListener(topics = [USER_STREAMING_TOPIC_NAME], groupId = "group_id")
     fun userStreamingEvent(message: ConsumerRecord<String, UserStreamingEvent>) {
         println("User streaming message delivered: $message")
         val event = message.value()
