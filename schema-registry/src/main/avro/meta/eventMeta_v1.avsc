@@ -1,0 +1,23 @@
+{
+  "namespace": "com.training.scheme.registry.eventmeta.v1",
+  "type": "record",
+  "name": "EventMeta",
+  "fields": [
+    {
+      "name": "eventType",
+      "type": "string"
+    },
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "eventTime",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    }
+  ]
+}

@@ -2,15 +2,13 @@ package com.training.tracker.service
 
 import com.training.tracker.data.UserRepository
 import com.training.tracker.data.model.User
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 
 @Service
-class UserService {
-
-    @Autowired
-    private lateinit var userRepository: UserRepository
+class UserService(
+    private val userRepository: UserRepository
+) {
 
     fun getRandomUser(): User {
         val users = userRepository.findByRole("DEVELOPER")

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
 
+
 @Service
 class JwtGeneratorImpl : JwtGenerator {
 
@@ -15,10 +16,10 @@ class JwtGeneratorImpl : JwtGenerator {
 
     override fun generateAccessToken(user: User): String {
         return Jwts.builder()
-                .setSubject(user.email)
-                .claim("role", user.role)
-                .setIssuedAt(Date())
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact()
+            .setSubject(user.email)
+            .claim("publicId", user.publicId)
+            .setIssuedAt(Date())
+            .signWith(SignatureAlgorithm.HS256, secretKey)
+            .compact()
     }
 }

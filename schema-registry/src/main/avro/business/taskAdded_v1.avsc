@@ -1,0 +1,47 @@
+{
+  "namespace": "com.training.scheme.registry.business.task.v1",
+  "type": "record",
+  "name": "TaskAddedBusinessEvent",
+  "fields": [
+    {
+      "name": "eventTypeVersion",
+      "type": "int",
+      "default": 1
+    },
+    {
+      "name": "eventMeta",
+      "type": "com.training.scheme.registry.eventmeta.v1.EventMeta"
+    },
+    {
+      "name": "payload",
+      "type": {
+        "name": "TaskAddedPayload",
+        "type": "record",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "assignCost",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "reward",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "assigneePublicId",
+            "type": "string"
+          },
+          {
+            "name": "publicId",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}

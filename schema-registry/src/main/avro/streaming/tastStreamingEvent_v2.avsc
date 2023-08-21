@@ -1,0 +1,55 @@
+{
+  "namespace": "com.training.scheme.registry.streaming.task.v2",
+  "type": "record",
+  "name": "TaskStreamingEvent",
+  "fields": [
+    {
+      "name": "eventTypeVersion",
+      "type": "int",
+      "default": 2
+    },
+    {
+      "name": "eventMeta",
+      "type": "com.training.scheme.registry.eventmeta.v1.EventMeta"
+    },
+    {
+      "name": "payload",
+      "type": {
+        "name": "TaskStreamingPayload",
+        "type": "record",
+        "fields": [
+          {
+            "name": "publicId",
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "jiraId",
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": null
+          },
+          {
+            "name": "assignCost",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "reward",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "assigneePublicId",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}

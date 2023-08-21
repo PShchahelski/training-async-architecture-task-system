@@ -1,6 +1,8 @@
 package com.training.tracker.data.model
 
-import com.training.tracker.events.model.UserStreamingEvent
+import com.training.scheme.registry.eventmeta.v1.EventMeta
+import com.training.scheme.registry.streaming.account.v1.UserStreamingEvent
+import com.training.scheme.registry.streaming.account.v1.UserStreamingPayload
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -10,17 +12,17 @@ import java.util.*
 @Entity
 @Table(name = "users")
 class User(
-        @Column(unique = true)
-        val email: String,
-        private var password: String,
-        @Column(name = "name")
-        val name: String,
-        @Enumerated(EnumType.STRING)
-        val role: Role = Role.DEVELOPER,
-        val publicId: UUID = UUID.randomUUID(),
-        @Id
-        @GeneratedValue
-        val id: Long = -1,
+    @Column(unique = true)
+    val email: String,
+    private var password: String,
+    @Column(name = "name")
+    val name: String,
+    @Enumerated(EnumType.STRING)
+    val role: Role = Role.DEVELOPER,
+    val publicId: UUID = UUID.randomUUID(),
+    @Id
+    @GeneratedValue
+    val id: Long = -1,
 ) : UserDetails {
 
     constructor() : this("", "", "")
@@ -65,6 +67,20 @@ class User(
     }
 }
 
-fun User.toUserCreatedEventDto(): UserStreamingEvent.UserCreatedStreamingEvent {
-    return UserStreamingEvent.UserCreatedStreamingEvent(email, name, role.toString(), publicId.toString())
+fun User.toUserStreamingEventDto(eventName: String): UserStreamingEvent {
+    return UserStreamingEvent.newBuilder()
+        .setPayload(
+            UserStreamingPayload.newBuilder().setEmail(email)
+                .setName(name)
+                .setRole(role.toString())
+                .setPublicId(publicId.toString())
+                .build()
+        )
+        .setEventMeta(
+            EventMeta.newBuilder()
+                .setEventType(eventName)
+                .setEventId(UUID.randomUUID().toString())
+                .build()
+        )
+        .build()
 }
