@@ -1,5 +1,8 @@
 package com.training.accounting.transaction.data.model
 
+import com.training.accounting.billingcycle.data.model.BillingCycle
+import com.training.accounting.task.data.model.Task
+import com.training.accounting.user.data.model.User
 import com.training.scheme.registry.business.transaction.v1.TransactionCompletedBusinessEvent
 import com.training.scheme.registry.business.transaction.v1.TransactionCompletedPayload
 import com.training.scheme.registry.eventmeta.v1.EventMeta
@@ -13,12 +16,18 @@ class Transaction(
     val publicId: UUID = UUID.randomUUID(),
     @Enumerated(EnumType.STRING)
     val type: Type,
-    val userPublicId: String,
-    val debit: Int, // начисление
-    val credit: Int, // списание
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    val user: User,
+    val debit: Int, // снятие
+    val credit: Int, // начисление
     val createdAt: OffsetDateTime = OffsetDateTime.now(),
-    val taskPublicId: String,
-    val billingCycleId: Long,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_id")
+    val task: Task,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "billing_cycle_id")
+    val billingCycle: BillingCycle,
     @Id
     @GeneratedValue
     val id: Long = -1
@@ -38,7 +47,7 @@ fun Transaction.toTransactionCompletedBusinessEvent(): TransactionCompletedBusin
                 .setCredit(credit)
                 .setDebit(debit)
                 .setType(type.name)
-                .setUserPublicId(userPublicId)
+                .setUserPublicId(user.publicId)
                 .setPublicId(publicId.toString())
                 .setCreatedAt(createdAt.toEpochSecond())
                 .build()

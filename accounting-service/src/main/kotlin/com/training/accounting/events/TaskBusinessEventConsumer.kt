@@ -43,6 +43,7 @@ class TaskBusinessEventConsumer(
     }
 
     private fun taskAdded(payload: TaskAddedPayloadV2) {
+        println("PASH# taskAdded# ${Thread.currentThread().name}")
         taskService.addTask(payload.toTask())
         transferService.performWithdraw(
             userPublicId = payload.assigneePublicId,

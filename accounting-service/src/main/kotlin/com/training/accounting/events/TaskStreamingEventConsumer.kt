@@ -21,7 +21,11 @@ class TaskStreamingEventConsumer(
         println("Task streaming message delivered: $message")
         when (val event = message.value()) {
             is TaskStreamingEvent -> taskService.addTask(event.payload.toTask())
-            is TaskStreamingEventV2 -> taskService.addTask(event.payload.toTask())
+            is TaskStreamingEventV2 -> {
+                println("PASH# taskStreamingEvent# ${Thread.currentThread().name}")
+
+                taskService.addTask(event.payload.toTask())
+            }
         }
     }
 }

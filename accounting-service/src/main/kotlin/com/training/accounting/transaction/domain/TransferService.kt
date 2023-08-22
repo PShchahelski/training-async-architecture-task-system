@@ -3,7 +3,6 @@ package com.training.accounting.transaction.domain
 import com.training.accounting.billingcycle.domain.BillingCycleService
 import com.training.accounting.events.TransactionBusinessEventProducer
 import com.training.accounting.transaction.data.model.Transaction
-import com.training.accounting.user.data.model.copy
 import com.training.accounting.user.domain.UserService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Isolation
@@ -16,17 +15,19 @@ class TransferService(
     private val transactionService: TransactionService,
     private val transactionBusinessEventProducer: TransactionBusinessEventProducer,
 ) {
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     fun performWithdraw(
         userPublicId: String,
         taskPublicId: String,
         amount: Int,
     ) {
         val user = userService.findUserByPublicId(userPublicId)
+        //TODO: error if user does not exist
         val billingCycle = billingCycleService.active
         val transaction = transactionService.performWithdraw(userPublicId, taskPublicId, amount, billingCycle!!.id)
+        user.balance += transaction.credit
 
-        user.copy(balance = user.balance + transaction.credit)
+        userService.updateUser(user)
 
         sendTransactionCompletedEvent(transaction)
     }
@@ -38,10 +39,12 @@ class TransferService(
         amount: Int,
     ) {
         val user = userService.findUserByPublicId(userPublicId)
+        //TODO: error if user does not exist
         val billingCycle = billingCycleService.active
         val transaction = transactionService.performEnrollment(userPublicId, taskPublicId, amount, billingCycle!!.id)
+        user.balance -= transaction.debit
 
-        user.copy(balance = user.balance - transaction.debit)
+        userService.updateUser(user)
 
         sendTransactionCompletedEvent(transaction)
     }

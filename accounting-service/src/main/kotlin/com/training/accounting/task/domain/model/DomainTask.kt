@@ -1,6 +1,7 @@
 package com.training.accounting.task.domain.model
 
 import com.training.accounting.task.data.model.Task
+import com.training.accounting.user.data.model.User
 import com.training.scheme.registry.business.task.v1.TaskAddedPayload
 import com.training.scheme.registry.streaming.task.v1.TaskStreamingPayload
 import com.training.scheme.registry.business.task.v2.TaskAddedPayload as TaskAddedPayloadV2
@@ -15,11 +16,14 @@ data class DomainTask(
     val reward: Int,
 )
 
-fun DomainTask.toTask(id: Long?) = Task(
+fun DomainTask.toTask(
+    user: User,
+    id: Long?,
+) = Task(
     id = id ?: -1,
     title = title,
     jiraId = jiraId,
-    userPublicId = userPublicId,
+    user = user,
     publicId = publicId,
     assignCost = assignCost,
     reward = reward,

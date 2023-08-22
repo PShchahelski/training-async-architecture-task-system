@@ -1,5 +1,6 @@
 package com.training.tracker.security
 
+import com.training.tracker.data.model.User
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,14 +24,14 @@ class SpringSecurityConfig {
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         return http
-                .authorizeHttpRequests { authorizeHttpRequests ->
-                    authorizeHttpRequests
-                            .requestMatchers("/user/**").permitAll()
-                            .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                }
-                .csrf { csrf -> csrf.disable() }
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
-                .build()
+            .authorizeHttpRequests { authorizeHttpRequests ->
+                authorizeHttpRequests
+                    .requestMatchers("/user/**").permitAll()
+                    .requestMatchers("/admin/**").hasAuthority(User.Role.ADMIN.name)
+            }
+            .csrf { csrf -> csrf.disable() }
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .build()
     }
 
     @Bean

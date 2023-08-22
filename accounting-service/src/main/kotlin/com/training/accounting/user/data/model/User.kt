@@ -1,9 +1,11 @@
 package com.training.accounting.user.data.model
 
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import com.training.accounting.task.data.model.Task
+import com.training.accounting.transaction.data.model.Transaction
+import jakarta.persistence.*
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 
 @Entity
 @Table(name = "users")
@@ -12,21 +14,44 @@ class User(
     val name: String,
     val role: String,
     val publicId: String,
-    val balance: Int = 0,
+    var balance: Int = 0,
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    val transactions: List<Transaction> = emptyList(),
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    val tasks: List<Task> = emptyList(),
     @Id
     @GeneratedValue
     val id: Long = -1,
-)
+) : UserDetails {
 
-fun User.copy(
-    email: String = this.email,
-    name: String = this.name,
-    role: String = this.role,
-    publicId: String = this.publicId,
-    balance: Int = this.balance,
-    id: Long = this.id,
-): User {
-    return User(
-        email, name, role, publicId, balance, id
-    )
+    constructor() : this("", "", "", "")
+
+    override fun getAuthorities(): Collection<GrantedAuthority> {
+        return listOf(SimpleGrantedAuthority(role))
+    }
+
+    override fun getPassword(): String {
+        return ""
+    }
+
+    override fun getUsername(): String {
+        return email
+    }
+
+    override fun isAccountNonExpired(): Boolean {
+        return true
+    }
+
+    override fun isAccountNonLocked(): Boolean {
+        return true
+    }
+
+    override fun isCredentialsNonExpired(): Boolean {
+        return true
+    }
+
+    override fun isEnabled(): Boolean {
+        return true
+    }
+
 }
