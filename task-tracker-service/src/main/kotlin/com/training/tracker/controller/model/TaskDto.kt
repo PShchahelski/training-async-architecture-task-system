@@ -18,6 +18,6 @@ fun Task.toReadableDto() = ReadableTaskDto(
     id,
     publicId.toString(),
     title,
-    status,
+    status.name,
     assigneePublicId,
 )

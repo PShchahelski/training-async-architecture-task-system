@@ -4,7 +4,7 @@ import com.training.tracker.controller.model.ReadableTaskDto
 import com.training.tracker.controller.model.WritableTaskDto
 import com.training.tracker.controller.model.toReadableDto
 import com.training.tracker.data.TasksRepository
-import com.training.tracker.data.model.toCompleteTask
+import com.training.tracker.data.model.Task
 import com.training.tracker.data.model.toTaskEntity
 import com.training.tracker.events.TaskBusinessEventProducer
 import com.training.tracker.events.TaskStreamingEventProducer
@@ -43,11 +43,11 @@ class TaskService(
     }
 
     fun completeTask(taskId: Long) {
-        val task = tasksRepository.findByIdOrNull(taskId) ?: throw Exception()
-        val completedTask = task.toCompleteTask()
+        val task = tasksRepository.findByIdOrNull(taskId) ?: throw Exception("Could not find task")
+        task.status = Task.Status.COMPLETED
 
-        tasksRepository.save(completedTask)
-        taskBusinessEventProducer.sendTaskCompleted(completedTask)
+        tasksRepository.save(task)
+        taskBusinessEventProducer.sendTaskCompleted(task)
     }
 
     private fun extractTicketIdFromTitle(title: String): Pair<String?, String> {

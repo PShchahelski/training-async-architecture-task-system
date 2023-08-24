@@ -19,9 +19,9 @@ class TaskTrackerController {
         return taskService.addNewTask(dto)
     }
 
-    @PostMapping("/{id}/complete")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun completeTask(@PathVariable taskId: Long) {
+    @PatchMapping("/{taskId}/complete")
+    fun completeTask(@PathVariable(name = "taskId") taskId: Long) {
         taskService.completeTask(taskId)
     }
 }

@@ -19,7 +19,8 @@ import com.training.scheme.registry.streaming.task.v2.TaskStreamingPayload as Ta
 class Task(
     val title: String,
     val jiraId: String? = null,
-    val status: String,
+    @Enumerated(EnumType.STRING)
+    var status: Status,
     val assigneePublicId: String,
     @Column(name = "public_id", updatable = false, nullable = false)
     val publicId: UUID = UUID.randomUUID(),
@@ -42,19 +43,11 @@ fun toTaskEntity(
     title: String,
 ) = Task(
     title = title,
-    status = Task.Status.CREATED.toString(),
+    status = Task.Status.CREATED,
     assigneePublicId = assigneePublicId,
     assignCost = assignCost,
     reward = reward,
     jiraId = jiraId,
-)
-
-fun Task.toCompleteTask() = Task(
-    title = this.title,
-    status = Task.Status.COMPLETED.toString(),
-    assigneePublicId = assigneePublicId,
-    assignCost = assignCost,
-    reward = reward,
 )
 
 fun Task.toCompleteTaskBusinessEvent(): TaskCompletedBusinessEvent = TaskCompletedBusinessEvent.newBuilder()
