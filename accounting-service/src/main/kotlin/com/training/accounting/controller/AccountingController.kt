@@ -1,6 +1,7 @@
 package com.training.accounting.controller
 
 import com.training.accounting.controller.model.AuditLogResponse
+import com.training.accounting.controller.model.StatisticsResponse
 import com.training.accounting.controller.model.TransactionDto
 import com.training.accounting.transaction.domain.TransactionService
 import org.springframework.http.ResponseEntity
@@ -18,10 +19,7 @@ class AccountingController(
 
     @GetMapping(path = ["/audit/log"])
     fun auditLog(): ResponseEntity<AuditLogResponse> {
-        val transactions = transactionService.getTransactionsForDateRange(
-            OffsetDateTime.now().truncatedTo(ChronoUnit.DAYS),
-            OffsetDateTime.now().withHour(23).withMinute(59).withSecond(59)
-        ).map { transaction ->
+        val transactions = getTransactionsForToday().map { transaction ->
             TransactionDto(
                 type = transaction.type,
                 billingCycleId = transaction.billingCycle.id,
@@ -34,4 +32,21 @@ class AccountingController(
 
         return ResponseEntity.ok(AuditLogResponse(transactions))
     }
+
+    @GetMapping(path = ["/statistics"])
+    fun statistics(): ResponseEntity<StatisticsResponse> {
+        val transactions = getTransactionsForToday()
+        val debit = transactions.sumOf { transaction -> transaction.debit }
+        val credit = transactions.sumOf { transaction -> transaction.credit }
+
+        return ResponseEntity.ok(StatisticsResponse(credit - debit))
+    }
+
+    private fun getTransactionsForToday() = transactionService.getTransactionsForDateRange(
+        OffsetDateTime.now().truncatedTo(ChronoUnit.DAYS),
+        OffsetDateTime.now()
+            .withHour(23)
+            .withMinute(59)
+            .withSecond(59)
+    )
 }
