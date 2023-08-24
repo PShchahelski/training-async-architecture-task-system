@@ -32,4 +32,8 @@ class UserServiceImpl(
         //TODO: handle exception
         return userRepository.findUserByPublicId(userPublicId)!!
     }
+
+    override fun findUserById(userId: Long): User {
+        return userRepository.findById(userId).orElseThrow()
+    }
 }

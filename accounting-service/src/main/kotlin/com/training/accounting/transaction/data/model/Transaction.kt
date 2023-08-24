@@ -16,13 +16,13 @@ class Transaction(
     val publicId: UUID = UUID.randomUUID(),
     @Enumerated(EnumType.STRING)
     val type: Type,
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     val user: User,
     val debit: Int, // снятие
     val credit: Int, // начисление
     val createdAt: OffsetDateTime = OffsetDateTime.now(),
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "task_id")
     val task: Task,
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,8 +34,8 @@ class Transaction(
 ) {
 
     enum class Type {
-        Enrollment, //зачисление
-        Withdrawal, // отчисление
+        Deposit, // отчисление
+        Withdrawal, // зачисление
         Payment,
     }
 }

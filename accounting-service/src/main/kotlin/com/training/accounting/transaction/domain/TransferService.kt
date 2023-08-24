@@ -33,7 +33,7 @@ class TransferService(
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    fun performEnrollment(
+    fun performDeposit(
         userPublicId: String,
         taskPublicId: String,
         amount: Int,
@@ -41,7 +41,7 @@ class TransferService(
         val user = userService.findUserByPublicId(userPublicId)
         //TODO: error if user does not exist
         val billingCycle = billingCycleService.active
-        val transaction = transactionService.performEnrollment(userPublicId, taskPublicId, amount, billingCycle!!.id)
+        val transaction = transactionService.performDeposit(userPublicId, taskPublicId, amount, billingCycle!!.id)
         user.balance -= transaction.debit
 
         userService.updateUser(user)

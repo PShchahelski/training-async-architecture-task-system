@@ -9,5 +9,4 @@ interface UserRepository : JpaRepository<User, Long> {
 
     fun findUserByEmail(email: String): User
     fun findUserByPublicId(publicId: String): User?
-
 }

@@ -9,12 +9,9 @@ import java.time.OffsetDateTime
 @Repository
 interface TransactionRepository : JpaRepository<Transaction, Long> {
 
-    fun findAllByUserPublicId(userPublicId: String): List<Transaction>
-
     @Query(
         value = "SELECT * FROM transactions tr WHERE tr.created_at BETWEEN ?1 AND ?2",
         nativeQuery = true
     )
     fun findAllTransactionsBetweenDate(startTime: OffsetDateTime, endTime: OffsetDateTime): List<Transaction>
-//    fun findAllByBillingCycleAndUser(billingCycleId: Long, userId: Long): List<Transaction>
 }

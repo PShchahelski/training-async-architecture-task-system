@@ -20,7 +20,7 @@ class UserStreamingEventConsumer(
         println("User streaming message delivered: $message")
         val event = message.value()
 
-        userService.addUser(event.payload)
-        billingCycleService.openBillingCycle()
+        val user = userService.addUser(event.payload)
+        billingCycleService.openBillingCycle(user)
     }
 }

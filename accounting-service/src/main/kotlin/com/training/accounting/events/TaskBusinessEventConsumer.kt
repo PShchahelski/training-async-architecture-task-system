@@ -35,7 +35,7 @@ class TaskBusinessEventConsumer(
 
     private fun taskAdded(payload: TaskAddedPayload) {
         taskService.addTask(payload.toTask())
-        transferService.performWithdraw(
+        transferService.performDeposit(
             userPublicId = payload.assigneePublicId,
             taskPublicId = payload.publicId,
             amount = payload.assignCost,
@@ -45,7 +45,7 @@ class TaskBusinessEventConsumer(
     private fun taskAdded(payload: TaskAddedPayloadV2) {
         println("PASH# taskAdded# ${Thread.currentThread().name}")
         taskService.addTask(payload.toTask())
-        transferService.performWithdraw(
+        transferService.performDeposit(
             userPublicId = payload.assigneePublicId,
             taskPublicId = payload.publicId,
             amount = payload.assignCost,
@@ -53,7 +53,7 @@ class TaskBusinessEventConsumer(
     }
 
     private fun taskCompleted(payload: TaskCompletedPayload) {
-        transferService.performEnrollment(
+        transferService.performWithdraw(
             userPublicId = payload.assigneePublicId,
             taskPublicId = payload.publicId,
             amount = payload.reward,

@@ -38,7 +38,7 @@ class TransactionService(
         return transactionRepository.save(transaction)
     }
 
-    fun performEnrollment(
+    fun performDeposit(
         userPublicId: String,
         taskPublicId: String,
         amount: Int,
@@ -50,7 +50,7 @@ class TransactionService(
         val billingCycle = billingCycleService.active!!
 
         val transaction = Transaction(
-            type = Transaction.Type.Enrollment,
+            type = Transaction.Type.Deposit,
             debit = amount,
             credit = 0,
             task = task,
@@ -61,15 +61,7 @@ class TransactionService(
         return transactionRepository.save(transaction)
     }
 
-    fun findAllByUserId(userPublicId: String): List<Transaction> {
-        return transactionRepository.findAllByUserPublicId(userPublicId)
-    }
-
     fun getTransactionsForDateRange(startTime: OffsetDateTime, endTime: OffsetDateTime): List<Transaction> {
         return transactionRepository.findAllTransactionsBetweenDate(startTime, endTime)
     }
-
-//    fun getTransactionsByBillingCycleAndUser(billingCycleId: Long, userId: Long): List<Transaction> {
-//        return transactionRepository.findAllByBillingCycleAndUser(billingCycleId, userId)
-//    }
 }
