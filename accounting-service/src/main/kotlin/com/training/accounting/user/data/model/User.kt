@@ -1,5 +1,6 @@
 package com.training.accounting.user.data.model
 
+import com.training.accounting.billingcycle.data.model.BillingCycle
 import com.training.accounting.task.data.model.Task
 import com.training.accounting.transaction.data.model.Transaction
 import jakarta.persistence.*
@@ -19,6 +20,8 @@ class User(
     val transactions: List<Transaction> = emptyList(),
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     val tasks: List<Task> = emptyList(),
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    val billingCycle: List<BillingCycle> = emptyList(),
     @Id
     @GeneratedValue
     val id: Long = -1,

@@ -12,12 +12,12 @@ class BillingCycle(
     @GeneratedValue
     val id: Long = -1,
     @Enumerated(EnumType.STRING)
-    val status: Status,
+    var status: Status,
     val startDatetime: OffsetDateTime,
-    val endDatetime: OffsetDateTime? = null,
+    var endDatetime: OffsetDateTime? = null,
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "billingCycle")
     val transactions: List<Transaction> = emptyList(),
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     val user: User,
 ) {

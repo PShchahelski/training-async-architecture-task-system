@@ -12,9 +12,10 @@ class BillingCycleService(
     private val repository: BillingCycleRepository,
 ) {
 
-    val active: BillingCycle?
+    fun getActiveBillingCycle(userId: Long): BillingCycle? {
         //TODO: handle exception
-        get() = repository.findLastActiveBillingCycle()
+        return repository.findLastActiveBillingCycle(userId)
+    }
 
     fun openBillingCycle(user: User) {
         val billingCycle = BillingCycle(
@@ -24,5 +25,20 @@ class BillingCycleService(
         )
 
         repository.save(billingCycle)
+    }
+
+    fun closeCycle(user: User) {
+        val billingCycle = getActiveBillingCycle(user.id)
+
+        billingCycle?.apply {
+            status = BillingCycle.Status.Closed
+            endDatetime = OffsetDateTime.now().withHour(23)
+                .withMinute(59)
+                .withSecond(59)
+
+            repository.save(this)
+        }
+
+        openBillingCycle(user)
     }
 }

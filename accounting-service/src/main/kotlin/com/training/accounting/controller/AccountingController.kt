@@ -19,10 +19,11 @@ class AccountingController(
 
     @GetMapping(path = ["/audit/log"])
     fun auditLog(): ResponseEntity<AuditLogResponse> {
+        //TODO: handle exception
         val transactions = getTransactionsForToday().map { transaction ->
             TransactionDto(
                 type = transaction.type,
-                billingCycleId = transaction.billingCycle.id,
+                billingCycleId = transaction.billingCycle!!.id,
                 amount = transaction.debit - transaction.credit,
                 credit = transaction.credit,
                 debit = transaction.debit,

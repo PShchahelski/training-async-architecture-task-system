@@ -5,6 +5,8 @@ import com.training.accounting.task.data.model.Task
 import com.training.accounting.user.data.model.User
 import com.training.scheme.registry.business.transaction.v1.TransactionCompletedBusinessEvent
 import com.training.scheme.registry.business.transaction.v1.TransactionCompletedPayload
+import com.training.scheme.registry.business.transaction.v1.TransactionPaymentBusinessEvent
+import com.training.scheme.registry.business.transaction.v1.TransactionPaymentPayload
 import com.training.scheme.registry.eventmeta.v1.EventMeta
 import jakarta.persistence.*
 import java.time.OffsetDateTime
@@ -24,10 +26,10 @@ class Transaction(
     val createdAt: OffsetDateTime = OffsetDateTime.now(),
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "task_id")
-    val task: Task,
+    val task: Task? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "billing_cycle_id")
-    val billingCycle: BillingCycle,
+    val billingCycle: BillingCycle? = null,
     @Id
     @GeneratedValue
     val id: Long = -1
@@ -49,6 +51,19 @@ fun Transaction.toTransactionCompletedBusinessEvent(): TransactionCompletedBusin
                 .setType(type.name)
                 .setUserPublicId(user.publicId)
                 .setPublicId(publicId.toString())
+                .setCreatedAt(createdAt.toEpochSecond())
+                .build()
+        )
+        .setEventMeta(buildEventMeta("Transaction.Completed"))
+        .build()
+
+fun Transaction.toPaymentTransaction(value: Int): TransactionPaymentBusinessEvent =
+    TransactionPaymentBusinessEvent.newBuilder()
+        .setPayload(
+            TransactionPaymentPayload.newBuilder()
+                .setUserPublicId(user.publicId)
+                .setPublicId(publicId.toString())
+                .setValue(value)
                 .setCreatedAt(createdAt.toEpochSecond())
                 .build()
         )

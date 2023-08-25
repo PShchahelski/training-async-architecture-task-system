@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository
 interface BillingCycleRepository : JpaRepository<BillingCycle, Long> {
 
     @Query(
-        value = "SELECT * FROM billing_cycles bc WHERE bc.status = 'Active' and bc.end_datetime is NULL",
+        value = "SELECT * FROM billing_cycles bc WHERE bc.status = 'Active' and bc.end_datetime is NULL and user_id = ?1",
         nativeQuery = true
     )
-    fun findLastActiveBillingCycle(): BillingCycle?
+    fun findLastActiveBillingCycle(userId: Long): BillingCycle?
 }

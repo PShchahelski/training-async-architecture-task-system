@@ -4,6 +4,7 @@ import com.training.accounting.billingcycle.domain.BillingCycleService
 import com.training.accounting.task.domain.TaskService
 import com.training.accounting.transaction.data.TransactionRepository
 import com.training.accounting.transaction.data.model.Transaction
+import com.training.accounting.user.data.model.User
 import com.training.accounting.user.domain.UserService
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
@@ -15,7 +16,7 @@ class TransactionService(
     private val billingCycleService: BillingCycleService,
     private val transactionRepository: TransactionRepository,
 ) {
-    fun performWithdraw(
+    fun addWithdrawTransaction(
         userPublicId: String,
         taskPublicId: String,
         amount: Int,
@@ -24,7 +25,7 @@ class TransactionService(
         val user = userService.findUserByPublicId(userPublicId)
         //TODO: handle exception
         val task = taskService.findTaskByPublicId(taskPublicId)!!
-        val billingCycle = billingCycleService.active!!
+        val billingCycle = billingCycleService.getActiveBillingCycle(user.id)!!
 
         val transaction = Transaction(
             type = Transaction.Type.Withdrawal,
@@ -38,7 +39,7 @@ class TransactionService(
         return transactionRepository.save(transaction)
     }
 
-    fun performDeposit(
+    fun addDepositTransaction(
         userPublicId: String,
         taskPublicId: String,
         amount: Int,
@@ -47,7 +48,7 @@ class TransactionService(
         val user = userService.findUserByPublicId(userPublicId)
         //TODO: handle exception
         val task = taskService.findTaskByPublicId(taskPublicId)!!
-        val billingCycle = billingCycleService.active!!
+        val billingCycle = billingCycleService.getActiveBillingCycle(user.id)!!
 
         val transaction = Transaction(
             type = Transaction.Type.Deposit,
@@ -63,5 +64,17 @@ class TransactionService(
 
     fun getTransactionsForDateRange(startTime: OffsetDateTime, endTime: OffsetDateTime): List<Transaction> {
         return transactionRepository.findAllTransactionsBetweenDate(startTime, endTime)
+    }
+
+    fun addCloseBillingCycleTransaction(user: User, paymentValue: Int): Transaction {
+        val transaction = Transaction(
+            type = Transaction.Type.Payment,
+            user = user,
+            debit = paymentValue,
+            credit = 0,
+            billingCycle = billingCycleService.getActiveBillingCycle(user.id),
+        )
+
+        return transactionRepository.save(transaction)
     }
 }

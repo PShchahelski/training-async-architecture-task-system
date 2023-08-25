@@ -30,7 +30,7 @@ class EmployeeController(
         val transactions = user.transactions.map { transaction ->
             TransactionDto(
                 type = transaction.type,
-                billingCycleId = transaction.billingCycle.id,
+                billingCycleId = transaction.billingCycle!!.id,
                 amount = transaction.debit - transaction.credit,
                 credit = transaction.credit,
                 debit = transaction.debit,

@@ -1,0 +1,43 @@
+{
+  "namespace": "com.training.scheme.registry.business.transaction.v1",
+  "type": "record",
+  "name": "TransactionPaymentBusinessEvent",
+  "fields": [
+    {
+      "name": "eventTypeVersion",
+      "type": "int",
+      "default": 1
+    },
+    {
+      "name": "eventMeta",
+      "type": "com.training.scheme.registry.eventmeta.v1.EventMeta"
+    },
+    {
+      "name": "payload",
+      "type": {
+        "name": "TransactionPaymentPayload",
+        "type": "record",
+        "fields": [
+          {
+            "name": "publicId",
+            "type": "string"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "userPublicId",
+            "type": "string"
+          },
+          {
+            "name": "createdAt",
+            "type": "long",
+            "logicalType": "timestamp-millis"
+          }
+        ]
+      }
+    }
+  ]
+}

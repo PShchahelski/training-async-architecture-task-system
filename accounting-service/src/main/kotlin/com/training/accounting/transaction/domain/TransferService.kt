@@ -3,6 +3,7 @@ package com.training.accounting.transaction.domain
 import com.training.accounting.billingcycle.domain.BillingCycleService
 import com.training.accounting.events.TransactionBusinessEventProducer
 import com.training.accounting.transaction.data.model.Transaction
+import com.training.accounting.user.data.model.User
 import com.training.accounting.user.domain.UserService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Isolation
@@ -23,8 +24,9 @@ class TransferService(
     ) {
         val user = userService.findUserByPublicId(userPublicId)
         //TODO: error if user does not exist
-        val billingCycle = billingCycleService.active
-        val transaction = transactionService.performWithdraw(userPublicId, taskPublicId, amount, billingCycle!!.id)
+        val billingCycle = billingCycleService.getActiveBillingCycle(user.id)
+        val transaction =
+            transactionService.addWithdrawTransaction(userPublicId, taskPublicId, amount, billingCycle!!.id)
         user.balance += transaction.credit
 
         userService.updateUser(user)
@@ -40,8 +42,9 @@ class TransferService(
     ) {
         val user = userService.findUserByPublicId(userPublicId)
         //TODO: error if user does not exist
-        val billingCycle = billingCycleService.active
-        val transaction = transactionService.performDeposit(userPublicId, taskPublicId, amount, billingCycle!!.id)
+        val billingCycle = billingCycleService.getActiveBillingCycle(user.id)
+        val transaction =
+            transactionService.addDepositTransaction(userPublicId, taskPublicId, amount, billingCycle!!.id)
         user.balance -= transaction.debit
 
         userService.updateUser(user)
@@ -51,5 +54,15 @@ class TransferService(
 
     private fun sendTransactionCompletedEvent(transaction: Transaction) {
         transactionBusinessEventProducer.sendTransactionCompleted(transaction)
+    }
+
+    fun closeBillingCycle(user: User) {
+        if (user.balance > 0) {
+            val transaction = transactionService.addCloseBillingCycleTransaction(user, user.balance)
+
+            transactionBusinessEventProducer.sendPaymentTransaction(transaction)
+        }
+
+        billingCycleService.closeCycle(user)
     }
 }
