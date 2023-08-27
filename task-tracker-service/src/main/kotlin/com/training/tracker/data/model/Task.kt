@@ -17,109 +17,117 @@ import com.training.scheme.registry.streaming.task.v2.TaskStreamingPayload as Ta
 @Entity
 @Table(name = "tasks")
 class Task(
-    val title: String,
-    val jiraId: String? = null,
-    @Enumerated(EnumType.STRING)
-    var status: Status,
-    val assigneePublicId: String,
-    @Column(name = "public_id", updatable = false, nullable = false)
-    val publicId: UUID = UUID.randomUUID(),
-    val assignCost: Int,
-    val reward: Int,
-    @Id
-    @GeneratedValue
-    val id: Long = -1
+	val title: String,
+	@Column(name = "jira_id")
+	val jiraId: String? = null,
+	@Enumerated(EnumType.STRING)
+	var status: Status,
+	@Column(name = "assignee_public_id")
+	val assigneePublicId: String,
+	@Column(name = "public_id", updatable = false, nullable = false)
+	val publicId: UUID = UUID.randomUUID(),
+	@Column(name = "assign_cost")
+	val assignCost: Int,
+	val reward: Int,
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	val user: User,
+	@Id
+	@GeneratedValue
+	val id: Long = -1,
 ) {
-    enum class Status {
-        CREATED, COMPLETED
-    }
+	enum class Status {
+		CREATED, COMPLETED
+	}
 }
 
 fun toTaskEntity(
-    assigneePublicId: String,
-    assignCost: Int,
-    reward: Int,
-    jiraId: String?,
-    title: String,
+	assigneePublicId: String,
+	assignCost: Int,
+	reward: Int,
+	jiraId: String?,
+	title: String,
+	user: User,
 ) = Task(
-    title = title,
-    status = Task.Status.CREATED,
-    assigneePublicId = assigneePublicId,
-    assignCost = assignCost,
-    reward = reward,
-    jiraId = jiraId,
+	title = title,
+	status = Task.Status.CREATED,
+	assigneePublicId = assigneePublicId,
+	assignCost = assignCost,
+	reward = reward,
+	jiraId = jiraId,
+	user = user,
 )
 
 fun Task.toCompleteTaskBusinessEvent(): TaskCompletedBusinessEvent = TaskCompletedBusinessEvent.newBuilder()
-    .setPayload(
-        TaskCompletedPayload.newBuilder()
-            .setReward(reward)
-            .setPublicId(publicId.toString())
-            .setAssigneePublicId(assigneePublicId)
-            .build()
-    )
-    .setEventMeta(buildEventMeta("Task.Completed"))
-    .build()
+	.setPayload(
+		TaskCompletedPayload.newBuilder()
+			.setReward(reward)
+			.setPublicId(publicId.toString())
+			.setAssigneePublicId(assigneePublicId)
+			.build()
+	)
+	.setEventMeta(buildEventMeta("Task.Completed"))
+	.build()
 
 fun Task.toTaskAddedBusinessEventV1(): TaskAddedBusinessEvent = TaskAddedBusinessEvent.newBuilder()
-    .setPayload(
-        TaskAddedPayload.newBuilder()
-            .setReward(reward)
-            .setAssignCost(assignCost)
-            .setTitle(title)
-            .setAssigneePublicId(assigneePublicId)
-            .setPublicId(publicId.toString())
-            .build()
-    )
-    .setEventMeta(buildEventMeta("Task.Added"))
-    .build()
+	.setPayload(
+		TaskAddedPayload.newBuilder()
+			.setReward(reward)
+			.setAssignCost(assignCost)
+			.setTitle(title)
+			.setAssigneePublicId(assigneePublicId)
+			.setPublicId(publicId.toString())
+			.build()
+	)
+	.setEventMeta(buildEventMeta("Task.Added"))
+	.build()
 
 fun Task.toTaskAddedBusinessEventV2(): TaskAddedBusinessEventV2 = TaskAddedBusinessEventV2.newBuilder()
-    .setPayload(
-        TaskAddedPayloadV2.newBuilder()
-            .setReward(reward)
-            .setAssignCost(assignCost)
-            .setTitle(title)
-            .setJiraId(jiraId)
-            .setAssigneePublicId(assigneePublicId)
-            .setPublicId(publicId.toString())
-            .build()
-    )
-    .setEventMeta(buildEventMeta("Task.Added"))
-    .build()
+	.setPayload(
+		TaskAddedPayloadV2.newBuilder()
+			.setReward(reward)
+			.setAssignCost(assignCost)
+			.setTitle(title)
+			.setJiraId(jiraId)
+			.setAssigneePublicId(assigneePublicId)
+			.setPublicId(publicId.toString())
+			.build()
+	)
+	.setEventMeta(buildEventMeta("Task.Added"))
+	.build()
 
 fun Task.toTaskStreamEventDto(eventName: String): TaskStreamingEvent {
-    return TaskStreamingEvent.newBuilder()
-        .setPayload(
-            TaskStreamingPayload.newBuilder()
-                .setPublicId(publicId.toString())
-                .setTitle(title)
-                .setAssignCost(assignCost)
-                .setReward(reward)
-                .setAssigneePublicId(assigneePublicId)
-                .build()
-        )
-        .setEventMeta(buildEventMeta(eventName))
-        .build()
+	return TaskStreamingEvent.newBuilder()
+		.setPayload(
+			TaskStreamingPayload.newBuilder()
+				.setPublicId(publicId.toString())
+				.setTitle(title)
+				.setAssignCost(assignCost)
+				.setReward(reward)
+				.setAssigneePublicId(assigneePublicId)
+				.build()
+		)
+		.setEventMeta(buildEventMeta(eventName))
+		.build()
 }
 
 fun Task.toTaskStreamEventDtoV2(eventName: String): TaskStreamingEventV2 {
-    return TaskStreamingEventV2.newBuilder()
-        .setPayload(
-            TaskStreamingPayloadV2.newBuilder()
-                .setPublicId(publicId.toString())
-                .setTitle(title)
-                .setJiraId(jiraId)
-                .setAssignCost(assignCost)
-                .setReward(reward)
-                .setAssigneePublicId(assigneePublicId)
-                .build()
-        )
-        .setEventMeta(buildEventMeta(eventName))
-        .build()
+	return TaskStreamingEventV2.newBuilder()
+		.setPayload(
+			TaskStreamingPayloadV2.newBuilder()
+				.setPublicId(publicId.toString())
+				.setTitle(title)
+				.setJiraId(jiraId)
+				.setAssignCost(assignCost)
+				.setReward(reward)
+				.setAssigneePublicId(assigneePublicId)
+				.build()
+		)
+		.setEventMeta(buildEventMeta(eventName))
+		.build()
 }
 
 private fun buildEventMeta(eventName: String): EventMeta = EventMeta.newBuilder()
-    .setEventType(eventName)
-    .setEventId(UUID.randomUUID().toString())
-    .build()
+	.setEventType(eventName)
+	.setEventId(UUID.randomUUID().toString())
+	.build()

@@ -13,52 +13,53 @@ import org.springframework.stereotype.Service
 
 @Service
 class TaskService(
-    private val tasksRepository: TasksRepository,
-    private val userService: UserService,
-    private val taskBusinessEventProducer: TaskBusinessEventProducer,
-    private val taskStreamingEventProducer: TaskStreamingEventProducer,
-    private val taskCostsCalculator: TaskCostsCalculator,
+	private val tasksRepository: TasksRepository,
+	private val userService: UserService,
+	private val taskBusinessEventProducer: TaskBusinessEventProducer,
+	private val taskStreamingEventProducer: TaskStreamingEventProducer,
+	private val taskCostsCalculator: TaskCostsCalculator,
 ) {
 
-    fun addNewTask(dto: WritableTaskDto): ReadableTaskDto {
-        println("Add new task $dto")
+	fun addNewTask(dto: WritableTaskDto): ReadableTaskDto {
+		println("Add new task $dto")
 
-        val user = userService.getRandomUser()
-        val (jiraId, title) = extractTicketIdFromTitle(dto.title)
+		val user = userService.getRandomUser()
+		val (jiraId, title) = extractTicketIdFromTitle(dto.title)
 
-        val task = tasksRepository.save(
-            toTaskEntity(
-                assigneePublicId = user.publicId,
-                assignCost = taskCostsCalculator.computeAssignCost(),
-                reward = taskCostsCalculator.computeReward(),
-                jiraId = jiraId,
-                title = title,
-            )
-        )
+		val task = tasksRepository.save(
+			toTaskEntity(
+				assigneePublicId = user.publicId,
+				assignCost = taskCostsCalculator.computeAssignCost(),
+				reward = taskCostsCalculator.computeReward(),
+				jiraId = jiraId,
+				title = title,
+				user = user,
+			)
+		)
 
-        taskBusinessEventProducer.sendTaskAdded(task)
-        taskStreamingEventProducer.sendTaskCreated(task)
+		taskBusinessEventProducer.sendTaskAdded(task)
+		taskStreamingEventProducer.sendTaskCreated(task)
 
-        return task.toReadableDto()
-    }
+		return task.toReadableDto()
+	}
 
-    fun completeTask(taskId: Long) {
-        val task = tasksRepository.findByIdOrNull(taskId) ?: throw Exception("Could not find task")
-        task.status = Task.Status.COMPLETED
+	fun completeTask(taskId: Long) {
+		val task = tasksRepository.findByIdOrNull(taskId) ?: throw Exception("Could not find task")
+		task.status = Task.Status.COMPLETED
 
-        tasksRepository.save(task)
-        taskBusinessEventProducer.sendTaskCompleted(task)
-    }
+		tasksRepository.save(task)
+		taskBusinessEventProducer.sendTaskCompleted(task)
+	}
 
-    private fun extractTicketIdFromTitle(title: String): Pair<String?, String> {
-        var jiraId: String? = null
-        var extractedTitle = title
+	private fun extractTicketIdFromTitle(title: String): Pair<String?, String> {
+		var jiraId: String? = null
+		var extractedTitle = title
 
-        if (title.contains("[") || title.contains("]")) {
-            jiraId = title.substring(1, title.lastIndexOf("]"))
-            extractedTitle = title.substring(jiraId.length + 5, title.length).trim()
-        }
+		if (title.contains("[") || title.contains("]")) {
+			jiraId = title.substring(1, title.lastIndexOf("]"))
+			extractedTitle = title.substring(jiraId.length + 5, title.length).trim()
+		}
 
-        return jiraId to extractedTitle
-    }
+		return jiraId to extractedTitle
+	}
 }

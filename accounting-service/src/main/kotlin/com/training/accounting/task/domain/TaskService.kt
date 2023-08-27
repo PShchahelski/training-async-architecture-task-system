@@ -17,14 +17,19 @@ class TaskService(
     @Transactional(isolation = Isolation.SERIALIZABLE)
     fun addTask(domainTask: DomainTask): Task {
         val dbTask = findTaskByPublicId(domainTask.publicId)
+        println("PASH# addTask# ${Thread.currentThread().name} task: $dbTask")
+
         val user = userService.findUserByPublicId(domainTask.userPublicId)
 
-        return taskRepository.save(
+        val save = taskRepository.save(
             domainTask.toTask(
                 user = user,
                 id = dbTask?.id,
             )
         )
+        println("PASH# addTask# ${Thread.currentThread().name} saved task: $save")
+
+        return save
     }
 
     fun findTaskByPublicId(taskPublicId: String): Task? {

@@ -1,13 +1,13 @@
 services:
-  auth-service:
-    image: pavelsha/async-course-2023-auth:1.0.0
-    build: .
-    ports:
-      - "9080:9080"
-    depends_on:
-      - service-db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db/auth-db
+#  auth-service:
+#    image: pavelsha/async-course-2023-auth:1.0.0
+#    build: .
+#    ports:
+#      - "9080:9080"
+#    depends_on:
+#      - service-db
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db/auth-db
 
   service-db:
     image: postgres:15.3
