@@ -9,7 +9,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import com.training.scheme.registry.streaming.task.v2.TaskStreamingEvent as TaskStreamingEventV2
 
-private const val TASK_TOPIC_STREAMING_NAME = "task-streaming"
+private const val TASK_TOPIC_STREAMING_NAME = "task_management.task_streaming"
 
 @Component
 class TaskStreamingEventConsumer(

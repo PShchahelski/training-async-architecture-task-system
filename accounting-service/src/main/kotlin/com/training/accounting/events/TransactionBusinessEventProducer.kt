@@ -8,7 +8,7 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 
 
-private const val TASK_TOPIC_NAME = "transaction-lifecycle"
+private const val TASK_TOPIC_NAME = "accounting.transaction_lifecycle"
 
 @Component
 class TransactionBusinessEventProducer(

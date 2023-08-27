@@ -13,42 +13,38 @@ import java.util.function.Function
 
 @Component
 class TokenAuthenticationService(
-    private val userService: UserService,
+	private val userService: UserService,
 ) {
 
-    @Value("\${jwt.secret}")
-    private lateinit var secretKey: String
+	@Value("\${jwt.secret}")
+	private lateinit var secretKey: String
 
-    fun getAuthentication(request: HttpServletRequest): Authentication? {
-        val token = getToken(request)
-        if (token != null) {
-            val email: String = extractEmail(token)
-            val user: UserDetails = userService.findUserByEmail(email)
+	fun getAuthentication(request: HttpServletRequest): Authentication? {
+		val token = getToken(request)
+		if (token != null) {
+			val email: String = extractEmail(token)
+			val user: UserDetails = userService.findUserByEmail(email)
 
-            return authenticated(email, null, user.authorities)
-        }
+			return authenticated(email, null, user.authorities)
+		}
 
-        return null
-    }
+		return null
+	}
 
-    fun getToken(httpServletRequest: HttpServletRequest): String? {
-        return httpServletRequest.getHeader("Authorization")
-    }
+	fun getToken(httpServletRequest: HttpServletRequest): String? {
+		return httpServletRequest.getHeader("Authorization")
+	}
 
-    private fun hasAuthorizationHeader(request: HttpServletRequest): Boolean {
-        return request.getHeader("Authorization") != null
-    }
+	fun extractEmail(token: String): String {
+		return extractClaim(token) { obj: Claims -> obj.subject }
+	}
 
-    fun extractEmail(token: String): String {
-        return extractClaim(token) { obj: Claims -> obj.subject }
-    }
+	fun extractAllClaims(token: String): Claims {
+		return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).body
+	}
 
-    fun extractAllClaims(token: String): Claims {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).body
-    }
-
-    fun <T> extractClaim(token: String, claimsResolver: Function<Claims, T>): T {
-        val claims = extractAllClaims(token)
-        return claimsResolver.apply(claims)
-    }
+	fun <T> extractClaim(token: String, claimsResolver: Function<Claims, T>): T {
+		val claims = extractAllClaims(token)
+		return claimsResolver.apply(claims)
+	}
 }

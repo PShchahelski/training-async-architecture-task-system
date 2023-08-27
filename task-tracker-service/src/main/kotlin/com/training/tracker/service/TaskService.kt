@@ -5,6 +5,7 @@ import com.training.tracker.controller.model.WritableTaskDto
 import com.training.tracker.controller.model.toReadableDto
 import com.training.tracker.data.TasksRepository
 import com.training.tracker.data.model.Task
+import com.training.tracker.data.model.User
 import com.training.tracker.data.model.toTaskEntity
 import com.training.tracker.events.TaskBusinessEventProducer
 import com.training.tracker.events.TaskStreamingEventProducer
@@ -43,8 +44,10 @@ class TaskService(
 		return task.toReadableDto()
 	}
 
-	fun completeTask(taskId: Long) {
+	fun completeTask(taskId: Long, user: User) {
 		val task = tasksRepository.findByIdOrNull(taskId) ?: throw Exception("Could not find task")
+		if (task.assigneePublicId != user.publicId && user.role != "ADMIN") throw Exception("Could not complete not own task!")
+
 		task.status = Task.Status.COMPLETED
 
 		tasksRepository.save(task)

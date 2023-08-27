@@ -7,7 +7,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 
-private const val USER_STREAMING_TOPIC_NAME = "user-streaming"
+private const val USER_STREAMING_TOPIC_NAME = "auth.user_streaming"
 
 @Component
 class UserStreamingEventConsumer(

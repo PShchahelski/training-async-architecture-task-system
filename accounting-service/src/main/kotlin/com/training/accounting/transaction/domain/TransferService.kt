@@ -11,58 +11,55 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class TransferService(
-    private val userService: UserService,
-    private val billingCycleService: BillingCycleService,
-    private val transactionService: TransactionService,
-    private val transactionBusinessEventProducer: TransactionBusinessEventProducer,
+	private val userService: UserService,
+	private val billingCycleService: BillingCycleService,
+	private val transactionService: TransactionService,
+	private val transactionBusinessEventProducer: TransactionBusinessEventProducer,
 ) {
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    fun performWithdraw(
-        userPublicId: String,
-        taskPublicId: String,
-        amount: Int,
-    ) {
-        val user = userService.findUserByPublicId(userPublicId)
-        //TODO: error if user does not exist
-        val billingCycle = billingCycleService.getActiveBillingCycle(user.id)
-        val transaction =
-            transactionService.addWithdrawTransaction(userPublicId, taskPublicId, amount, billingCycle!!.id)
-        user.balance += transaction.credit
+	@Transactional(isolation = Isolation.SERIALIZABLE)
+	fun performWithdraw(
+		userPublicId: String,
+		taskPublicId: String,
+		amount: Int,
+	) {
+		val user = userService.findUserByPublicId(userPublicId)
+		//TODO: error if user does not exist
+		val billingCycle = billingCycleService.getActiveBillingCycle(user.id)
+		val transaction =
+			transactionService.addWithdrawTransaction(userPublicId, taskPublicId, amount, billingCycle!!.id)
+		user.balance += transaction.credit
 
-        userService.updateUser(user)
+		userService.updateUser(user)
 
-        sendTransactionCompletedEvent(transaction)
-    }
+		sendTransactionCompletedEvent(transaction)
+	}
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    fun performDeposit(
-        userPublicId: String,
-        taskPublicId: String,
-        amount: Int,
-    ) {
-        val user = userService.findUserByPublicId(userPublicId)
-        //TODO: error if user does not exist
-        val billingCycle = billingCycleService.getActiveBillingCycle(user.id)
-        val transaction =
-            transactionService.addDepositTransaction(userPublicId, taskPublicId, amount, billingCycle!!.id)
-        user.balance -= transaction.debit
+	@Transactional(isolation = Isolation.REPEATABLE_READ)
+	fun performDeposit(
+		userPublicId: String,
+		taskPublicId: String,
+		amount: Int,
+	) {
+		val user = userService.findUserByPublicId(userPublicId)
+		//TODO: error if user does not exist
+		val billingCycle = billingCycleService.getActiveBillingCycle(user.id)
+		val transaction =
+			transactionService.addDepositTransaction(userPublicId, taskPublicId, amount, billingCycle!!.id)
+		user.balance -= transaction.debit
 
-        userService.updateUser(user)
+		userService.updateUser(user)
 
-        sendTransactionCompletedEvent(transaction)
-    }
+		sendTransactionCompletedEvent(transaction)
+	}
 
-    private fun sendTransactionCompletedEvent(transaction: Transaction) {
-        transactionBusinessEventProducer.sendTransactionCompleted(transaction)
-    }
+	private fun sendTransactionCompletedEvent(transaction: Transaction) {
+		transactionBusinessEventProducer.sendTransactionCompleted(transaction)
+	}
 
-    fun closeBillingCycle(user: User) {
-        if (user.balance > 0) {
-            val transaction = transactionService.addCloseBillingCycleTransaction(user, user.balance)
+	fun closeBillingCycle(user: User) {
+		val transaction = transactionService.addCloseBillingCycleTransaction(user, user.balance)
+		transactionBusinessEventProducer.sendPaymentTransaction(transaction)
 
-            transactionBusinessEventProducer.sendPaymentTransaction(transaction)
-        }
-
-        billingCycleService.closeCycle(user)
-    }
+		billingCycleService.closeCycle(user)
+	}
 }

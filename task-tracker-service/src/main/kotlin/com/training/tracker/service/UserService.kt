@@ -7,15 +7,18 @@ import kotlin.random.Random
 
 @Service
 class UserService(
-    private val userRepository: UserRepository
+	private val userRepository: UserRepository,
 ) {
+	fun getRandomUser(): User {
+		val users = userRepository.findByRole("DEVELOPER")
+		val index = Random.nextInt(users.size)
+		val user = users[index]
+		println("Random User for task: $user")
 
-    fun getRandomUser(): User {
-        val users = userRepository.findByRole("DEVELOPER")
-        val index = Random.nextInt(users.size)
-        val user = users[index]
-        println("Random User for task: $user")
+		return user
+	}
 
-        return user
-    }
+	fun findUserByEmail(userEmail: String): User {
+		return userRepository.findUserByEmail(userEmail)
+	}
 }

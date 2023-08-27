@@ -6,7 +6,7 @@ import org.apache.avro.specific.SpecificRecord
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 
-private const val TASK_TOPIC_STREAMING_NAME = "task-streaming"
+private const val TASK_TOPIC_STREAMING_NAME = "task_management.task_streaming"
 
 @Component
 class TaskStreamingEventProducer(

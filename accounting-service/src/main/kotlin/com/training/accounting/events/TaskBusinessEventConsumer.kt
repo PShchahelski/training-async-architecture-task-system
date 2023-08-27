@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 import com.training.scheme.registry.business.task.v2.TaskAddedBusinessEvent as TaskAddedBusinessEventV2
 import com.training.scheme.registry.business.task.v2.TaskAddedPayload as TaskAddedPayloadV2
 
-private const val TASK_TOPIC_NAME = "task-lifecycle"
+private const val TASK_TOPIC_NAME = "task_management.task_lifecycle"
 
 @Component
 class TaskBusinessEventConsumer(

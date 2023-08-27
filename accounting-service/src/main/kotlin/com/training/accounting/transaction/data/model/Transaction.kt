@@ -69,7 +69,7 @@ fun Transaction.toPaymentTransaction(value: Int): TransactionPaymentBusinessEven
 				.setCreatedAt(createdAt.toInstant())
 				.build()
 		)
-		.setEventMeta(buildEventMeta("Transaction.Completed"))
+		.setEventMeta(buildEventMeta("Transaction.Payment.Completed"))
 		.build()
 
 private fun buildEventMeta(eventName: String): EventMeta = EventMeta.newBuilder()
