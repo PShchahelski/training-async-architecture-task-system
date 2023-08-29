@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 import com.training.scheme.registry.business.task.v2.TaskAddedBusinessEvent as TaskAddedBusinessEventV2
 import com.training.scheme.registry.business.task.v2.TaskAddedPayload as TaskAddedPayloadV2
 
-private const val TASK_TOPIC_NAME = "task-lifecycle"
+private const val TASK_TOPIC_NAME = "task_management.task_lifecycle"
 
 @Component
 class TaskBusinessEventConsumer(
@@ -35,7 +35,7 @@ class TaskBusinessEventConsumer(
 
     private fun taskAdded(payload: TaskAddedPayload) {
         taskService.addTask(payload.toTask())
-        transferService.performWithdraw(
+        transferService.performDeposit(
             userPublicId = payload.assigneePublicId,
             taskPublicId = payload.publicId,
             amount = payload.assignCost,
@@ -43,8 +43,9 @@ class TaskBusinessEventConsumer(
     }
 
     private fun taskAdded(payload: TaskAddedPayloadV2) {
+        println("PASH# taskAdded# ${Thread.currentThread().name}")
         taskService.addTask(payload.toTask())
-        transferService.performWithdraw(
+        transferService.performDeposit(
             userPublicId = payload.assigneePublicId,
             taskPublicId = payload.publicId,
             amount = payload.assignCost,
@@ -52,7 +53,7 @@ class TaskBusinessEventConsumer(
     }
 
     private fun taskCompleted(payload: TaskCompletedPayload) {
-        transferService.performEnrollment(
+        transferService.performWithdraw(
             userPublicId = payload.assigneePublicId,
             taskPublicId = payload.publicId,
             amount = payload.reward,

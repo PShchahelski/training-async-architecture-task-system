@@ -1,7 +1,7 @@
 {
   "namespace": "com.training.scheme.registry.business.transaction.v1",
   "type": "record",
-  "name": "TransactionCompletedBusinessEvent",
+  "name": "TransactionPaymentBusinessEvent",
   "fields": [
     {
       "name": "eventTypeVersion",
@@ -15,7 +15,7 @@
     {
       "name": "payload",
       "type": {
-        "name": "TransactionCompletedPayload",
+        "name": "TransactionPaymentPayload",
         "type": "record",
         "fields": [
           {
@@ -23,16 +23,7 @@
             "type": "string"
           },
           {
-            "name": "type",
-            "type": "string"
-          },
-          {
-            "name": "debit",
-            "type": "int",
-            "default": 0
-          },
-          {
-            "name": "credit",
+            "name": "value",
             "type": "int",
             "default": 0
           },

@@ -17,7 +17,7 @@ class JwtGeneratorImpl : JwtGenerator {
     override fun generateAccessToken(user: User): String {
         return Jwts.builder()
             .setSubject(user.email)
-            .claim("publicId", user.publicId)
+            .claim("role", user.role.name)
             .setIssuedAt(Date())
             .signWith(SignatureAlgorithm.HS256, secretKey)
             .compact()

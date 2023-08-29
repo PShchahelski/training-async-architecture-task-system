@@ -20,6 +20,8 @@ class SpringSecurityConfig(
             .authorizeHttpRequests { authorizeHttpRequests ->
                 authorizeHttpRequests
                     .requestMatchers("/employee/**").authenticated()
+                    .requestMatchers("/accounting/**").hasAuthority("ADMIN")
+                    .requestMatchers("/payment/**").hasAuthority("ADMIN")
             }
             .csrf { csrf -> csrf.disable() }
             .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter::class.java)

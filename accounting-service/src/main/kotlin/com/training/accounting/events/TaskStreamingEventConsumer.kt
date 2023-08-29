@@ -9,19 +9,28 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import com.training.scheme.registry.streaming.task.v2.TaskStreamingEvent as TaskStreamingEventV2
 
-private const val TASK_TOPIC_STREAMING_NAME = "task-streaming"
+private const val TASK_TOPIC_STREAMING_NAME = "task_management.task_streaming"
 
 @Component
 class TaskStreamingEventConsumer(
-    private val taskService: TaskService,
+	private val taskService: TaskService,
 ) {
 
-    @KafkaListener(topics = [TASK_TOPIC_STREAMING_NAME], groupId = "group_id_2")
-    fun taskStreamingEvent(message: ConsumerRecord<String, SpecificRecord>) {
-        println("Task streaming message delivered: $message")
-        when (val event = message.value()) {
-            is TaskStreamingEvent -> taskService.addTask(event.payload.toTask())
-            is TaskStreamingEventV2 -> taskService.addTask(event.payload.toTask())
-        }
-    }
+	@KafkaListener(topics = [TASK_TOPIC_STREAMING_NAME], groupId = "group_id_2")
+	fun taskStreamingEvent(message: ConsumerRecord<String, SpecificRecord>) {
+		println("Task streaming message delivered: $message")
+
+		val event = message.value()
+		handleReceivedMessage(event)
+	}
+
+	private fun handleReceivedMessage(event: SpecificRecord?) {
+		if (event is TaskStreamingEvent && event.eventTypeVersion == 1) {
+			taskService.addTask(event.payload.toTask())
+		} else if (event is TaskStreamingEventV2 && event.eventTypeVersion == 2) {
+			taskService.addTask(event.payload.toTask())
+		} else {
+			// send alert to monitoring system
+		}
+	}
 }

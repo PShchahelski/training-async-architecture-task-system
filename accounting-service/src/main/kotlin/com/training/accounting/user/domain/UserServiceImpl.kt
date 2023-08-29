@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 class UserServiceImpl(
     private val userRepository: UserRepository,
 ) : UserService {
-    override fun addUser(payload: UserStreamingPayload) {
+    override fun addUser(payload: UserStreamingPayload): User {
         val user = User(
             email = payload.email,
             name = payload.name,
@@ -17,7 +17,11 @@ class UserServiceImpl(
             role = payload.role,
         )
 
-        userRepository.save(user)
+        return userRepository.save(user)
+    }
+
+    override fun updateUser(user: User): User {
+        return userRepository.save(user)
     }
 
     override fun findUserByEmail(userEmail: String): User {
@@ -25,6 +29,11 @@ class UserServiceImpl(
     }
 
     override fun findUserByPublicId(userPublicId: String): User {
-        return userRepository.findUserByPublicId(userPublicId)
+        //TODO: handle exception
+        return userRepository.findUserByPublicId(userPublicId)!!
+    }
+
+    override fun findUserById(userId: Long): User {
+        return userRepository.findById(userId).orElseThrow()
     }
 }

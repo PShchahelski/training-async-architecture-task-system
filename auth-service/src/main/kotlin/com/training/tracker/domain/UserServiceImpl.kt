@@ -4,7 +4,6 @@ import com.training.tracker.data.UserRepository
 import com.training.tracker.data.model.User
 import com.training.tracker.events.UserEventProducer
 import com.training.tracker.security.JwtGenerator
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
@@ -16,62 +15,52 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
-class UserServiceImpl : UserService {
+class UserServiceImpl(
+	private val passwordEncoder: PasswordEncoder,
+	private val jwtGenerator: JwtGenerator,
+	private val userRepository: UserRepository,
+	private val authenticationManager: AuthenticationManager,
+	private val userEventProducer: UserEventProducer,
+) : UserService {
 
-    @Autowired
-    private lateinit var passwordEncoder: PasswordEncoder
+	override fun authenticate(email: String, password: String): String {
+		val authentication: Authentication = authenticationManager.authenticate(
+			UsernamePasswordAuthenticationToken(
+				/* principal = */ email,
+				/* credentials = */ password
+			)
+		)
+		SecurityContextHolder.getContext().authentication = authentication
 
-    @Autowired
-    private lateinit var jwtGenerator: JwtGenerator
+		val user: User = userRepository.findByEmail(authentication.name)
+			?: throw UsernameNotFoundException("User not found")
 
-    @Autowired
-    private lateinit var userRepository: UserRepository
+		return jwtGenerator.generateAccessToken(user)
+	}
 
-    @Autowired
-    private lateinit var authenticationManager: AuthenticationManager
+	override fun register(
+		email: String,
+		password: String,
+		userName: String,
+		role: User.Role,
+	): ResponseEntity<*> {
+		return if (userRepository.existsByEmail(email)) {
+			ResponseEntity<String>("email is already taken !", HttpStatus.SEE_OTHER)
+		} else {
+			val user = User(email, passwordEncoder.encode(password), userName, role)
+			val dbUser = userRepository.save(user)
 
-    @Autowired
-    private lateinit var userEventProducer: UserEventProducer
+			userEventProducer.sendUserCreated(dbUser)
 
+			val token = jwtGenerator.generateAccessToken(dbUser)
 
-    override fun authenticate(email: String, password: String): String {
-        val authentication: Authentication = authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken(
-                        /* principal = */ email,
-                        /* credentials = */ password
-                )
-        )
-        SecurityContextHolder.getContext().authentication = authentication
+			ResponseEntity<Any>(token, HttpStatus.OK)
+		}
+	}
 
-        val user: User = userRepository.findByEmail(authentication.name)
-                ?: throw UsernameNotFoundException("User not found")
+	override fun saverUser(user: User) {
+		val dbUser = userRepository.save(user)
 
-        return jwtGenerator.generateAccessToken(user)
-    }
-
-    override fun register(
-            email: String,
-            password: String,
-            userName: String,
-            role: User.Role,
-    ): ResponseEntity<*> {
-        return if (userRepository.existsByEmail(email)) {
-            ResponseEntity<String>("email is already taken !", HttpStatus.SEE_OTHER)
-        } else {
-            val user = User(email, passwordEncoder.encode(password), userName, role)
-            val dbUser = userRepository.save(user)
-
-            userEventProducer.sendUserCreated(dbUser)
-
-            val token = jwtGenerator.generateAccessToken(dbUser)
-
-            ResponseEntity<Any>(token, HttpStatus.OK)
-        }
-    }
-
-    override fun saverUser(user: User) {
-        val dbUser = userRepository.save(user)
-
-        userEventProducer.sendUserCreated(dbUser)
-    }
+		userEventProducer.sendUserCreated(dbUser)
+	}
 }

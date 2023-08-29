@@ -3,7 +3,7 @@ package com.training.accounting.transaction.domain
 import com.training.accounting.billingcycle.domain.BillingCycleService
 import com.training.accounting.events.TransactionBusinessEventProducer
 import com.training.accounting.transaction.data.model.Transaction
-import com.training.accounting.user.data.model.copy
+import com.training.accounting.user.data.model.User
 import com.training.accounting.user.domain.UserService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Isolation
@@ -11,42 +11,55 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class TransferService(
-    private val userService: UserService,
-    private val billingCycleService: BillingCycleService,
-    private val transactionService: TransactionService,
-    private val transactionBusinessEventProducer: TransactionBusinessEventProducer,
+	private val userService: UserService,
+	private val billingCycleService: BillingCycleService,
+	private val transactionService: TransactionService,
+	private val transactionBusinessEventProducer: TransactionBusinessEventProducer,
 ) {
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    fun performWithdraw(
-        userPublicId: String,
-        taskPublicId: String,
-        amount: Int,
-    ) {
-        val user = userService.findUserByPublicId(userPublicId)
-        val billingCycle = billingCycleService.active
-        val transaction = transactionService.performWithdraw(userPublicId, taskPublicId, amount, billingCycle!!.id)
+	@Transactional(isolation = Isolation.SERIALIZABLE)
+	fun performWithdraw(
+		userPublicId: String,
+		taskPublicId: String,
+		amount: Int,
+	) {
+		val user = userService.findUserByPublicId(userPublicId)
+		//TODO: error if user does not exist
+		val billingCycle = billingCycleService.getActiveBillingCycle(user.id)
+		val transaction =
+			transactionService.addWithdrawTransaction(userPublicId, taskPublicId, amount, billingCycle!!.id)
+		user.balance += transaction.credit
 
-        user.copy(balance = user.balance + transaction.credit)
+		userService.updateUser(user)
 
-        sendTransactionCompletedEvent(transaction)
-    }
+		sendTransactionCompletedEvent(transaction)
+	}
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    fun performEnrollment(
-        userPublicId: String,
-        taskPublicId: String,
-        amount: Int,
-    ) {
-        val user = userService.findUserByPublicId(userPublicId)
-        val billingCycle = billingCycleService.active
-        val transaction = transactionService.performEnrollment(userPublicId, taskPublicId, amount, billingCycle!!.id)
+	@Transactional(isolation = Isolation.REPEATABLE_READ)
+	fun performDeposit(
+		userPublicId: String,
+		taskPublicId: String,
+		amount: Int,
+	) {
+		val user = userService.findUserByPublicId(userPublicId)
+		//TODO: error if user does not exist
+		val billingCycle = billingCycleService.getActiveBillingCycle(user.id)
+		val transaction =
+			transactionService.addDepositTransaction(userPublicId, taskPublicId, amount, billingCycle!!.id)
+		user.balance -= transaction.debit
 
-        user.copy(balance = user.balance - transaction.debit)
+		userService.updateUser(user)
 
-        sendTransactionCompletedEvent(transaction)
-    }
+		sendTransactionCompletedEvent(transaction)
+	}
 
-    private fun sendTransactionCompletedEvent(transaction: Transaction) {
-        transactionBusinessEventProducer.sendTransactionCompleted(transaction)
-    }
+	private fun sendTransactionCompletedEvent(transaction: Transaction) {
+		transactionBusinessEventProducer.sendTransactionCompleted(transaction)
+	}
+
+	fun closeBillingCycle(user: User) {
+		val transaction = transactionService.addCloseBillingCycleTransaction(user, user.balance)
+		transactionBusinessEventProducer.sendPaymentTransaction(transaction)
+
+		billingCycleService.closeCycle(user)
+	}
 }

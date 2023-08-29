@@ -1,6 +1,6 @@
 package com.training.tracker.security
 
-import org.springframework.beans.factory.annotation.Autowired
+import com.training.tracker.data.model.User
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -14,33 +14,32 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-class SpringSecurityConfig {
+class SpringSecurityConfig(
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+) {
 
-    @Autowired
-    private lateinit var jwtAuthenticationFilter: JwtAuthenticationFilter
+	@Bean
+	@Throws(Exception::class)
+	fun filterChain(http: HttpSecurity): SecurityFilterChain {
+		return http
+			.authorizeHttpRequests { authorizeHttpRequests ->
+				authorizeHttpRequests
+					.requestMatchers("/user/**").permitAll()
+					.requestMatchers("/admin/**").hasAuthority(User.Role.ADMIN.name)
+			}
+			.csrf { csrf -> csrf.disable() }
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
+			.build()
+	}
 
-    @Bean
-    @Throws(Exception::class)
-    fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        return http
-                .authorizeHttpRequests { authorizeHttpRequests ->
-                    authorizeHttpRequests
-                            .requestMatchers("/user/**").permitAll()
-                            .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                }
-                .csrf { csrf -> csrf.disable() }
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
-                .build()
-    }
+	@Bean
+	@Throws(Exception::class)
+	fun authenticationManager(authenticationConfiguration: AuthenticationConfiguration): AuthenticationManager {
+		return authenticationConfiguration.getAuthenticationManager()
+	}
 
-    @Bean
-    @Throws(Exception::class)
-    fun authenticationManager(authenticationConfiguration: AuthenticationConfiguration): AuthenticationManager {
-        return authenticationConfiguration.getAuthenticationManager()
-    }
-
-    @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
+	@Bean
+	fun passwordEncoder(): PasswordEncoder {
+		return BCryptPasswordEncoder()
+	}
 }

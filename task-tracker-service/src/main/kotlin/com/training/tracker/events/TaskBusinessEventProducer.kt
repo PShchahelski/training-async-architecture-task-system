@@ -7,7 +7,7 @@ import org.apache.avro.specific.SpecificRecord
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 
-private const val TASK_TOPIC_NAME = "task-lifecycle"
+private const val TASK_TOPIC_NAME = "task_management.task_lifecycle"
 
 @Component
 class TaskBusinessEventProducer(
