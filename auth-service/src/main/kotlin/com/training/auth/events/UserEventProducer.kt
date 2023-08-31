@@ -1,8 +1,8 @@
-package com.training.tracker.events
+package com.training.auth.events
 
+import com.training.auth.data.model.User
+import com.training.auth.data.model.toUserStreamingEventDto
 import com.training.scheme.registry.streaming.account.v1.UserStreamingEvent
-import com.training.tracker.data.model.User
-import com.training.tracker.data.model.toUserStreamingEventDto
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 

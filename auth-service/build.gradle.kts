@@ -32,8 +32,8 @@ dependencies {
 	implementation("org.springframework.kafka:spring-kafka")
 	implementation("org.apache.avro:avro:1.11.1")
 	implementation("io.confluent:kafka-avro-serializer:5.3.0")
-//	implementation("io.confluent:kafka-streams-avro-serde:5.3.0")
-//	implementation("io.confluent:kafka-schema-registry-client:5.3.0")
+
+	implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.18")
 
 	implementation(files("../schema-registry/build/libs/schema-registry-1.0-SNAPSHOT.jar"))
 

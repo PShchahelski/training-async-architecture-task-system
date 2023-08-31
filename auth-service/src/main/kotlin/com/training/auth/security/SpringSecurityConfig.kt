@@ -1,21 +1,27 @@
-package com.training.tracker.security
+package com.training.auth.security
 
-import com.training.tracker.data.model.User
+import com.training.auth.data.UserRepository
+import com.training.auth.data.model.User
+import com.training.auth.domain.CustomerUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 class SpringSecurityConfig(
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+	private val userRepository: UserRepository,
+	private val jwtAuthenticationFilter: JwtAuthenticationFilter,
 ) {
 
 	@Bean
@@ -36,6 +42,20 @@ class SpringSecurityConfig(
 	@Throws(Exception::class)
 	fun authenticationManager(authenticationConfiguration: AuthenticationConfiguration): AuthenticationManager {
 		return authenticationConfiguration.getAuthenticationManager()
+	}
+
+	@Bean
+	fun authenticationProvider(): AuthenticationProvider {
+		return DaoAuthenticationProvider()
+			.apply {
+				setUserDetailsService(userDetailsService())
+				setPasswordEncoder(passwordEncoder())
+			}
+	}
+
+	@Bean
+	fun userDetailsService(): UserDetailsService {
+		return CustomerUserDetailsService(userRepository)
 	}
 
 	@Bean

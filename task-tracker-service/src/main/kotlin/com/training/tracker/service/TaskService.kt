@@ -1,5 +1,6 @@
 package com.training.tracker.service
 
+import com.github.michaelbull.result.*
 import com.training.tracker.controller.model.ReadableTaskDto
 import com.training.tracker.controller.model.WritableTaskDto
 import com.training.tracker.controller.model.toReadableDto
@@ -11,6 +12,7 @@ import com.training.tracker.events.TaskBusinessEventProducer
 import com.training.tracker.events.TaskStreamingEventProducer
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class TaskService(
@@ -21,37 +23,46 @@ class TaskService(
 	private val taskCostsCalculator: TaskCostsCalculator,
 ) {
 
+	@Transactional
 	fun addNewTask(dto: WritableTaskDto): ReadableTaskDto {
 		println("Add new task $dto")
 
 		val user = userService.getRandomUser()
 		val (jiraId, title) = extractTicketIdFromTitle(dto.title)
-
-		val task = tasksRepository.save(
-			toTaskEntity(
-				assigneePublicId = user.publicId,
-				assignCost = taskCostsCalculator.computeAssignCost(),
-				reward = taskCostsCalculator.computeReward(),
-				jiraId = jiraId,
-				title = title,
-				user = user,
-			)
+		val entity = toTaskEntity(
+			assigneePublicId = user.publicId,
+			assignCost = taskCostsCalculator.computeAssignCost(),
+			reward = taskCostsCalculator.computeReward(),
+			jiraId = jiraId,
+			title = title,
+			user = user,
 		)
+		val task = tasksRepository.save(entity)
+			.also(taskBusinessEventProducer::sendTaskAdded)
+			.also(taskStreamingEventProducer::sendTaskCreated)
 
-		taskBusinessEventProducer.sendTaskAdded(task)
-		taskStreamingEventProducer.sendTaskCreated(task)
 
 		return task.toReadableDto()
 	}
 
-	fun completeTask(taskId: Long, user: User) {
-		val task = tasksRepository.findByIdOrNull(taskId) ?: throw Exception("Could not find task")
-		if (task.assigneePublicId != user.publicId && user.role != "ADMIN") throw Exception("Could not complete not own task!")
-
-		task.status = Task.Status.COMPLETED
-
-		tasksRepository.save(task)
-		taskBusinessEventProducer.sendTaskCompleted(task)
+	@Transactional
+	fun completeTask(taskId: Long, user: User): Result<Task, Exception> {
+		return tasksRepository.findByIdOrNull(taskId)
+			.toResultOr { Exception("Could not find task") }
+			.flatMap { task ->
+				if (task.assigneePublicId != user.publicId) {
+					Err(Exception("Could not complete not own task!"))
+				} else {
+					Ok(task)
+				}
+			}
+			.flatMap { task ->
+				task.status = Task.Status.COMPLETED
+				Ok(
+					tasksRepository.save(task)
+						.also(taskBusinessEventProducer::sendTaskCompleted)
+				)
+			}
 	}
 
 	private fun extractTicketIdFromTitle(title: String): Pair<String?, String> {

@@ -1,18 +1,19 @@
-package com.training.tracker.domain
+package com.training.auth.domain
 
-import com.training.tracker.data.UserRepository
-import com.training.tracker.data.model.User
-import com.training.tracker.events.UserEventProducer
-import com.training.tracker.security.JwtGenerator
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.training.auth.data.UserRepository
+import com.training.auth.data.model.User
+import com.training.auth.events.UserEventProducer
+import com.training.auth.security.JwtGenerator
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class UserServiceImpl(
@@ -23,19 +24,24 @@ class UserServiceImpl(
 	private val userEventProducer: UserEventProducer,
 ) : UserService {
 
-	override fun authenticate(email: String, password: String): String {
+	override fun authenticate(email: String, password: String): Result<String, Exception> {
 		val authentication: Authentication = authenticationManager.authenticate(
 			UsernamePasswordAuthenticationToken(
 				/* principal = */ email,
 				/* credentials = */ password
 			)
 		)
-		SecurityContextHolder.getContext().authentication = authentication
 
-		val user: User = userRepository.findByEmail(authentication.name)
-			?: throw UsernameNotFoundException("User not found")
-
-		return jwtGenerator.generateAccessToken(user)
+		return if (authentication.isAuthenticated) {
+			val user = userRepository.findByEmail(authentication.name)
+			if (user != null) {
+				Ok(jwtGenerator.generateAccessToken(user))
+			} else {
+				Err(UsernameNotFoundException("User not found"))
+			}
+		} else {
+			Err(RuntimeException("User is not authenticated"))
+		}
 	}
 
 	override fun register(
@@ -43,24 +49,21 @@ class UserServiceImpl(
 		password: String,
 		userName: String,
 		role: User.Role,
-	): ResponseEntity<*> {
+	): Result<String, Exception> {
 		return if (userRepository.existsByEmail(email)) {
-			ResponseEntity<String>("email is already taken !", HttpStatus.SEE_OTHER)
+			Err(Exception("Email is already taken !"))
 		} else {
 			val user = User(email, passwordEncoder.encode(password), userName, role)
-			val dbUser = userRepository.save(user)
-
-			userEventProducer.sendUserCreated(dbUser)
-
+			val dbUser = saveUser(user)
 			val token = jwtGenerator.generateAccessToken(dbUser)
 
-			ResponseEntity<Any>(token, HttpStatus.OK)
+			Ok(token)
 		}
 	}
 
-	override fun saverUser(user: User) {
-		val dbUser = userRepository.save(user)
-
-		userEventProducer.sendUserCreated(dbUser)
+	@Transactional
+	override fun saveUser(user: User): User {
+		return userRepository.save(user)
+			.also(userEventProducer::sendUserCreated)
 	}
 }

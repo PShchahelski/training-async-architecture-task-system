@@ -1,8 +1,8 @@
-package com.training.tracker
+package com.training.auth
 
-import com.training.tracker.data.UserRepository
-import com.training.tracker.data.model.User
-import com.training.tracker.domain.UserService
+import com.training.auth.data.UserRepository
+import com.training.auth.data.model.User
+import com.training.auth.domain.UserService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -16,7 +16,7 @@ class AuthorizationApplication {
     fun run(userService: UserService, userRepository: UserRepository, passwordEncoder: PasswordEncoder): CommandLineRunner {
         return CommandLineRunner { _: Array<String> ->
             if (userRepository.findByEmail("admin@gmail.com") == null) {
-                userService.saverUser(User("admin@gmail.com", passwordEncoder.encode("adminPassword"), "Admin Admin", User.Role.ADMIN))
+                userService.saveUser(User("admin@gmail.com", passwordEncoder.encode("adminPassword"), "Admin Admin", User.Role.ADMIN))
             }
         }
     }

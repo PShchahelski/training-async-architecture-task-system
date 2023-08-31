@@ -1,4 +1,4 @@
-package com.training.tracker.security
+package com.training.auth.security
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -19,6 +19,10 @@ class JwtUtil {
 
     fun extractUsername(token: String): String {
         return extractClaim<String>(token) { obj: Claims -> obj.subject }
+    }
+
+    fun extractUserRole(token: String): String {
+        return extractClaim<String>(token) { obj: Claims -> obj.get("role", String::class.java) }
     }
 
     fun <T> extractClaim(token: String, claimsResolver: Function<Claims, T>): T {

@@ -1,6 +1,6 @@
-package com.training.tracker.security
+package com.training.auth.security
 
-import com.training.tracker.data.model.User
+import com.training.auth.data.model.User
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.beans.factory.annotation.Value

@@ -1,5 +1,6 @@
 package com.training.tracker.security
 
+import com.github.michaelbull.result.get
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -14,9 +15,9 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
     private lateinit var tokenAuthenticationService: TokenAuthenticationService
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        val authentication = tokenAuthenticationService.getAuthentication(request)
+        val authenticationResult = tokenAuthenticationService.getAuthentication(request)
 
-        SecurityContextHolder.getContext().authentication = authentication
+        SecurityContextHolder.getContext().authentication = authenticationResult.get()
 
         filterChain.doFilter(request, response)
     }

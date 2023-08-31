@@ -1,4 +1,4 @@
-package com.training.tracker.data.model
+package com.training.auth.data.model
 
 import com.training.scheme.registry.eventmeta.v1.EventMeta
 import com.training.scheme.registry.streaming.account.v1.UserStreamingEvent

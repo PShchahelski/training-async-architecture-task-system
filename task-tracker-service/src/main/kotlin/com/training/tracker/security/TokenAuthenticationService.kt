@@ -1,5 +1,8 @@
 package com.training.tracker.security
 
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import com.training.tracker.service.UserService
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -7,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken.authenticated
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Component
 import java.util.function.Function
 
@@ -18,15 +22,12 @@ class TokenAuthenticationService(
 	@Value("\${jwt.secret}")
 	private lateinit var secretKey: String
 
-	fun getAuthentication(request: HttpServletRequest): Authentication? {
-		val token = getToken(request)
-		if (token != null) {
-			val email: String = extractEmail(token)
+	fun getAuthentication(request: HttpServletRequest): Result<Authentication?, UsernameNotFoundException> {
+		val token = getToken(request) ?: return Ok(null)
+		val email: String = extractEmail(token)
 
-			return authenticated(email, null, emptyList())
-		}
-
-		return null
+		return userService.findUserByEmail(email)
+			.map { user -> authenticated(user.email, null, emptyList()) }
 	}
 
 	fun getToken(httpServletRequest: HttpServletRequest): String? {

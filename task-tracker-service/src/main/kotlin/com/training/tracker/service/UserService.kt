@@ -1,7 +1,10 @@
 package com.training.tracker.service
 
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.toResultOr
 import com.training.tracker.data.UserRepository
 import com.training.tracker.data.model.User
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 
@@ -18,7 +21,7 @@ class UserService(
 		return user
 	}
 
-	fun findUserByEmail(userEmail: String): User {
-		return userRepository.findUserByEmail(userEmail)
+	fun findUserByEmail(userEmail: String): Result<User, UsernameNotFoundException> {
+		return userRepository.findUserByEmail(userEmail).toResultOr { UsernameNotFoundException("User not found") }
 	}
 }
