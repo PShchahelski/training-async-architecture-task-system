@@ -35,7 +35,7 @@ dependencies {
 
 	implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.18")
 
-	implementation(files("../schema-registry/build/libs/schema-registry-1.0-SNAPSHOT.jar"))
+	implementation(files("libs/schema-registry-1.0-SNAPSHOT.jar"))
 
 	runtimeOnly("org.postgresql:postgresql")
 	runtimeOnly("javax.xml.bind:jaxb-api:2.3.1")

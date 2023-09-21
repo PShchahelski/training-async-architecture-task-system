@@ -1,13 +1,13 @@
 services:
-#  task-service:
-#    image: pavelsha/async-course-2023-accounting:1.0.0
-#    build: .
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - service-db
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db/accounting-db
+  task-service:
+    image: pavelsha/async-course-2023-accounting:0.9.0
+    build: .
+    ports:
+      - "7080:7080"
+    depends_on:
+      - service-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db/${POSTGRES_DB}
 
   service-db:
     image: postgres:15.3
