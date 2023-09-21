@@ -1,3 +1,5 @@
 package com.training.accounting.controller.model
 
-class BalanceResponse(val balance: Int)
+data class BalanceResponse(
+	val balance: Int,
+)

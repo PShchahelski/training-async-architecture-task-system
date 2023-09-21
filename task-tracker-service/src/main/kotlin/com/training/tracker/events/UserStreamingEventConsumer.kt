@@ -12,25 +12,25 @@ private const val USER_STREAMING_TOPIC_NAME = "auth.user_streaming"
 
 @Component
 class UserStreamingEventConsumer(
-    private val userRepository: UserRepository,
+	private val userRepository: UserRepository,
 ) {
 
-    @KafkaListener(topics = [USER_STREAMING_TOPIC_NAME], groupId = "group_id")
-    fun userStreamingEvent(message: ConsumerRecord<String, UserStreamingEvent>) {
-        println("User streaming message delivered: $message")
-        val event = message.value()
+	@KafkaListener(topics = [USER_STREAMING_TOPIC_NAME], groupId = "task.user_streaming_group")
+	fun userStreamingEvent(message: ConsumerRecord<String, UserStreamingEvent>) {
+		println("User streaming message delivered: $message")
+		val event = message.value()
 
-        addUser(event.payload)
-    }
+		addUser(event.payload)
+	}
 
-    private fun addUser(payload: UserStreamingPayload) {
-        val user = User(
-            email = payload.email,
-            name = payload.name,
-            publicId = payload.publicId,
-            role = payload.role,
-        )
+	private fun addUser(payload: UserStreamingPayload) {
+		val user = User(
+			email = payload.email,
+			name = payload.name,
+			publicId = payload.publicId,
+			role = payload.role,
+		)
 
-        userRepository.save(user)
-    }
+		userRepository.save(user)
+	}
 }

@@ -16,7 +16,7 @@ class TaskStreamingEventConsumer(
 	private val taskService: TaskService,
 ) {
 
-	@KafkaListener(topics = [TASK_TOPIC_STREAMING_NAME], groupId = "group_id_2")
+	@KafkaListener(topics = [TASK_TOPIC_STREAMING_NAME], groupId = "accounting.task_streaming_group")
 	fun taskStreamingEvent(message: ConsumerRecord<String, SpecificRecord>) {
 		println("Task streaming message delivered: $message")
 

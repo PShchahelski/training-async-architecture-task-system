@@ -15,9 +15,9 @@ class JwtAuthenticationFilter : OncePerRequestFilter() {
     private lateinit var tokenAuthenticationService: TokenAuthenticationService
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        val authenticationResult = tokenAuthenticationService.getAuthentication(request)
+        val authenticationResult = tokenAuthenticationService.getAuthentication(request).get()
 
-        SecurityContextHolder.getContext().authentication = authenticationResult.get()
+        SecurityContextHolder.getContext().authentication = authenticationResult
 
         filterChain.doFilter(request, response)
     }

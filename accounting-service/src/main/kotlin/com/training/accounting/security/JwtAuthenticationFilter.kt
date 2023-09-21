@@ -1,5 +1,6 @@
 package com.training.accounting.security
 
+import com.github.michaelbull.result.get
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -17,7 +18,7 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
-        val authentication = tokenAuthenticationService.getAuthentication(request)
+        val authentication = tokenAuthenticationService.getAuthentication(request).get()
 
         SecurityContextHolder.getContext().authentication = authentication
 

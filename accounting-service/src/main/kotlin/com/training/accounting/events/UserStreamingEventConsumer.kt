@@ -15,7 +15,7 @@ class UserStreamingEventConsumer(
     private val billingCycleService: BillingCycleService,
 ) {
 
-    @KafkaListener(topics = [USER_STREAMING_TOPIC_NAME], groupId = "group_id_2")
+    @KafkaListener(topics = [USER_STREAMING_TOPIC_NAME], groupId = "accounting.user_streaming_group")
     fun userStreamingEvent(message: ConsumerRecord<String, UserStreamingEvent>) {
         println("User streaming message delivered: $message")
         val event = message.value()

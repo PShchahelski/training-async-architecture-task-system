@@ -18,45 +18,44 @@ private const val TASK_TOPIC_NAME = "task_management.task_lifecycle"
 
 @Component
 class TaskBusinessEventConsumer(
-    private val transferService: TransferService,
-    private val taskService: TaskService,
+	private val transferService: TransferService,
+	private val taskService: TaskService,
 ) {
 
-    @KafkaListener(topics = [TASK_TOPIC_NAME], groupId = "group_id_2")
-    fun taskBusinessEvent(message: ConsumerRecord<String, SpecificRecord>) {
-        println("Task business message delivered: $message")
+	@KafkaListener(topics = [TASK_TOPIC_NAME], groupId = "accounting.task_group")
+	fun taskBusinessEvent(message: ConsumerRecord<String, SpecificRecord>) {
+		println("Task business message delivered: $message")
 
-        when (val event = message.value()) {
-            is TaskAddedBusinessEvent -> taskAdded(event.payload)
-            is TaskAddedBusinessEventV2 -> taskAdded(event.payload)
-            is TaskCompletedBusinessEvent -> taskCompleted(event.payload)
-        }
-    }
+		when (val event = message.value()) {
+			is TaskAddedBusinessEvent -> taskAdded(event.payload)
+			is TaskAddedBusinessEventV2 -> taskAdded(event.payload)
+			is TaskCompletedBusinessEvent -> taskCompleted(event.payload)
+		}
+	}
 
-    private fun taskAdded(payload: TaskAddedPayload) {
-        taskService.addTask(payload.toTask())
-        transferService.performDeposit(
-            userPublicId = payload.assigneePublicId,
-            taskPublicId = payload.publicId,
-            amount = payload.assignCost,
-        )
-    }
+	private fun taskAdded(payload: TaskAddedPayload) {
+		taskService.addTask(payload.toTask())
+		transferService.performDeposit(
+			userPublicId = payload.assigneePublicId,
+			taskPublicId = payload.publicId,
+			amount = payload.assignCost,
+		)
+	}
 
-    private fun taskAdded(payload: TaskAddedPayloadV2) {
-        println("PASH# taskAdded# ${Thread.currentThread().name}")
-        taskService.addTask(payload.toTask())
-        transferService.performDeposit(
-            userPublicId = payload.assigneePublicId,
-            taskPublicId = payload.publicId,
-            amount = payload.assignCost,
-        )
-    }
+	private fun taskAdded(payload: TaskAddedPayloadV2) {
+		taskService.addTask(payload.toTask())
+		transferService.performDeposit(
+			userPublicId = payload.assigneePublicId,
+			taskPublicId = payload.publicId,
+			amount = payload.assignCost,
+		)
+	}
 
-    private fun taskCompleted(payload: TaskCompletedPayload) {
-        transferService.performWithdraw(
-            userPublicId = payload.assigneePublicId,
-            taskPublicId = payload.publicId,
-            amount = payload.reward,
-        )
-    }
+	private fun taskCompleted(payload: TaskCompletedPayload) {
+		transferService.performWithdraw(
+			userPublicId = payload.assigneePublicId,
+			taskPublicId = payload.publicId,
+			amount = payload.reward,
+		)
+	}
 }

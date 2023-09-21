@@ -1,6 +1,8 @@
 package com.training.tracker.service
 
-import com.github.michaelbull.result.*
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.toResultOr
 import com.training.tracker.controller.model.ReadableTaskDto
 import com.training.tracker.controller.model.WritableTaskDto
 import com.training.tracker.controller.model.toReadableDto
@@ -49,19 +51,11 @@ class TaskService(
 	fun completeTask(taskId: Long, user: User): Result<Task, Exception> {
 		return tasksRepository.findByIdOrNull(taskId)
 			.toResultOr { Exception("Could not find task") }
-			.flatMap { task ->
-				if (task.assigneePublicId != user.publicId) {
-					Err(Exception("Could not complete not own task!"))
-				} else {
-					Ok(task)
-				}
-			}
-			.flatMap { task ->
+			.map { task ->
 				task.status = Task.Status.COMPLETED
-				Ok(
-					tasksRepository.save(task)
-						.also(taskBusinessEventProducer::sendTaskCompleted)
-				)
+
+				tasksRepository.save(task)
+					.also(taskBusinessEventProducer::sendTaskCompleted)
 			}
 	}
 

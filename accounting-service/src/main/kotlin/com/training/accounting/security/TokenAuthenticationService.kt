@@ -1,5 +1,8 @@
 package com.training.accounting.security
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import com.training.accounting.user.domain.UserService
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -7,7 +10,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken.authenticated
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Component
 import java.util.function.Function
 
@@ -19,16 +22,16 @@ class TokenAuthenticationService(
 	@Value("\${jwt.secret}")
 	private lateinit var secretKey: String
 
-	fun getAuthentication(request: HttpServletRequest): Authentication? {
-		val token = getToken(request)
-		if (token != null) {
-			val email: String = extractEmail(token)
-			val user: UserDetails = userService.findUserByEmail(email)
+	fun getAuthentication(request: HttpServletRequest): Result<Authentication?, UsernameNotFoundException> {
+		val token = getToken(request) ?: return Ok(null)
+		val email: String = extractEmail(token)
+		val user = userService.findUserByEmail(email)
 
-			return authenticated(email, null, user.authorities)
+		return if (user != null) {
+			Ok(authenticated(email, null, emptyList()))
+		} else {
+			Err(UsernameNotFoundException("User was not found"))
 		}
-
-		return null
 	}
 
 	fun getToken(httpServletRequest: HttpServletRequest): String? {

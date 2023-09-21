@@ -5,6 +5,8 @@ import com.training.accounting.controller.model.BalanceResponse
 import com.training.accounting.controller.model.TransactionDto
 import com.training.accounting.user.data.model.User
 import com.training.accounting.user.domain.UserService
+import org.springframework.http.HttpStatus
+import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,15 +20,14 @@ class EmployeeController(
 ) {
 	@GetMapping(path = ["/balance"])
 	fun balance(): ResponseEntity<BalanceResponse> {
-		val user = findUserFromAuthorization()
+		val user = findUserFromAuthorization() ?: return buildUserNotFoundException()
 
 		return ResponseEntity.ok(BalanceResponse(user.balance))
 	}
 
 	@GetMapping(path = ["/audit/log"])
 	fun auditLog(): ResponseEntity<AuditLogResponse> {
-		val user = findUserFromAuthorization()
-
+		val user = findUserFromAuthorization() ?: return buildUserNotFoundException()
 		val transactions = user.transactions.map { transaction ->
 			TransactionDto(
 				type = transaction.type,
@@ -41,7 +42,7 @@ class EmployeeController(
 		return ResponseEntity.ok(AuditLogResponse(transactions))
 	}
 
-	private fun findUserFromAuthorization(): User {
+	private fun findUserFromAuthorization(): User? {
 		val userEmail = extractUserEmailFromAuthorization()
 
 		return userService.findUserByEmail(userEmail)
@@ -52,4 +53,13 @@ class EmployeeController(
 
 		return authentication.principal as String
 	}
+
+	private fun <T> buildUserNotFoundException(): ResponseEntity<T> =
+		ResponseEntity.of(
+			ProblemDetail.forStatusAndDetail(
+				HttpStatus.NOT_FOUND,
+				"User was not found from provided auth token!",
+			)
+		)
+			.build()
 }
