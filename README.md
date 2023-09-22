@@ -3,6 +3,10 @@
 This is the demo project that was built during the training ["Асинхронная архитектура"](https://education.borshev.com/architecture)
 
 ---
+## Disclaimer
+:warning: Some things were done on purpose and simple in the project because of the nature of the course.
+
+---
 ## Architecture
 The project is split into 3 main microservices:
 - Auth. This service can register users and generate JWT token for authentication and authorization. 
@@ -27,9 +31,7 @@ Kafka UI is [here](http://localhost:8082/subjects)
 
 Each service contains *Docker file* that build service and
 *docker compose* yml file that starts container with PostgreSQL and a service.
-In order to deploy any service execute the following code in the module:
-
-`docker compose up`
+In order to deploy any service execute in the module `docker compose up`.
 
 ---
 ## Stack
@@ -43,5 +45,13 @@ In order to deploy any service execute the following code in the module:
 ## Homework
 - [Homework#0](https://miro.com/app/board/uXjVMyAaRDs=/?share_link_id=723311522393)
 - Homework#1 – Event Storming and Domain Model [diagrams](https://miro.com/app/board/uXjVMxPSYUw=/?share_link_id=202795793480)
+- Homework#3 – This homework included answers in the [Homework-03.md](docs%2FHomework-03.md)
 
-Other homeworks are implemented with code.
+Other homeworks are implemented with the code.
+
+---
+## Certificate
+The certificate that I passed "Async Architecture" course from *July 28
+to August 28, 2023* is below!
+
+![certificate.png](docs%2Fcertificate.png)
